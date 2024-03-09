@@ -1,10 +1,23 @@
-// swift-tools-version: 5.7
+// swift-tools-version: 5.9
 
 import PackageDescription
 
 let package = Package(
     name: "XCTwine",
     platforms: [.macOS(.v13)],
+    products: [
+
+        .executable(
+            name: "xctwine", 
+            targets: ["xctwine"]
+        ),
+
+        .plugin(
+            name: "XCTwinePlugin",
+            targets: ["XCTwinePlugin"]
+        )
+
+    ],
     dependencies: [
         
         .package(
@@ -37,5 +50,15 @@ let package = Package(
             ],
             path: "Sources/XCTwine"
         ),
+
+        .plugin(
+            name: "XCTwinePlugin",
+            capability: .buildTool(),
+            dependencies: [
+                .target(name: "xctwine")
+            ],
+            path: "Plugins/XCTwinePlugin"
+        )
+
     ]
 )
