@@ -37,12 +37,12 @@ just add a package entry to your dependencies.
 XCTwine is extremely lightweight - at its simplest, 
 it can be used with only input & output file arguments:
 
-- `$ xctwine Localizable.xcstrings String+Localized.swift`
+- `$ xctwine Localizable.xcstrings String+Localizable.swift`
 
-The generated `String+Localized.swift` file will look something like...
+The generated `String+Localizable.swift` file will look something like...
 
 ```swift
-extension String {
+public extension String {
     static let myString: String = "MY_STRING"
 }
 ```
@@ -56,7 +56,7 @@ var myLocalizedString: String = .myString
 ### Formatting
 
 Specifying an output format with the `--format` or `-f` options
-will generate string-keys in that given format. XCTwine supports
+will generate string-keys in a given format. XCTwine supports
 the following formats:
 
 - `none`: No key formatting
@@ -76,15 +76,15 @@ will generate string-keys in a wrapped namespace - instead of
 directly as an extension on `String`. For example, the following
 command:
 
-- `$ xctwine Localizable.xcstrings String+Localized.swift --namespace=localized`
+- `$ xctwine Localizable.xcstrings String+Localizable.swift --namespace=localized`
 
-Will generate a `String+Localized.swift` file that looks something like...
+Will generate a `String+Localizable.swift` file that looks something like...
 
 ```swift
-extension String {
+public extension String {
 
     struct XCTwine {
-        let myString: String = "MY_STRING"
+        public let myString: String = "MY_STRING"
     }
 
     var localized: XCTwine {
@@ -99,6 +99,15 @@ extension String {
 ```swift
 var myLocalizedString: String = .localized.myString
 ```
+
+## Xcode Plugin
+
+XCTwine also comes packaged as an Xcode build plugin 
+for easy integration with your build pipeline.
+After installing XCTwine, just add it to your target's
+build-tool plugin list under:
+
+- `Project → Targets → Build Phases → Run Build-Tool Plugins`
 
 ## Contributing
 
