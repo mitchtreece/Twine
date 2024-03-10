@@ -108,14 +108,14 @@ struct XCTwine: ParsableCommand {
             
             let payload = (pair.value as? [String: Any])
             
-            return Entry(
+            return StringEntry(
                 key: pair.key,
                 format: self.keyFormat,
                 comment: payload?["comment"] as? String
             )
             
         }
-            .sorted(by: { $0.key < $1.key })
+        .sorted(by: { $0.key < $1.key })
         
         guard !entries.isEmpty else {
             error("No localization entries, exiting")
@@ -167,7 +167,7 @@ struct XCTwine: ParsableCommand {
     
     // MARK: Private
     
-    private func buildOutputString(entries: [Entry]) -> String {
+    private func buildOutputString(entries: [StringEntry]) -> String {
         
         let formatter = DateFormatter()
         formatter.dateFormat = "M/d/yy"
