@@ -18,18 +18,12 @@ protocol PluginContextProtocol {
 }
 
 private extension PluginContextProtocol {
-    
-    var outputDirectory: Path {
+
+    func outputPath(for file: File) -> Path {
         
         return self.pluginWorkDirectory
             .appending(subpath: "XCTwinePlugin")
-        
-    }
-    
-    func outputPath(for file: File) -> Path {
-        
-        return self.outputDirectory
-            .appending("\(file.path.stem).swift")
+            .appending("String+\(file.path.stem).swift")
         
     }
     
@@ -50,7 +44,7 @@ extension Command {
                         using context: PluginContextProtocol) throws -> Command {
      
         return .buildCommand(
-            displayName: "XCTwinePlugin: Generate string extensions for `\(file.path.lastComponent)`",
+            displayName: "XCTwinePlugin: Generate string extensions for \(file.path.lastComponent)",
             executable: try context.tool(named: "xctwine").path,
             arguments: [
                 file.path,
