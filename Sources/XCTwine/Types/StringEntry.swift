@@ -1,5 +1,5 @@
 //
-//  Entry.swift
+//  StringEntry.swift
 //  XCTwine
 //
 //  Created by Mitch Treece on 3/8/24.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Entry {
+struct StringEntry {
     
     let key: String
     let formattedKey: String

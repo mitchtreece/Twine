@@ -4,7 +4,7 @@
 
 ![Version](https://img.shields.io/badge/Version-1.0.0-BDD7FF.svg?style=for-the-badge&labelColor=166CE3)
 ![Xcode](https://img.shields.io/badge/Xcode-15-BDD7FF.svg?style=for-the-badge&labelColor=166CE3)
-![Swift](https://img.shields.io/badge/Swift-5.7-BDD7FF.svg?style=for-the-badge&labelColor=166CE3)
+![Swift](https://img.shields.io/badge/Swift-5.9-BDD7FF.svg?style=for-the-badge&labelColor=166CE3)
 ![macOS](https://img.shields.io/badge/macOS-13+-BDD7FF.svg?style=for-the-badge&labelColor=166CE3)
 
 </div>
@@ -37,13 +37,13 @@ just add a package entry to your dependencies.
 XCTwine is extremely lightweight - at its simplest, 
 it can be used with only input & output file arguments:
 
-- `$ xctwine Localizable.xcstrings String+Localized.swift`
+- `$ xctwine Localizable.xcstrings String+Localizable.swift`
 
-The generated `String+Localized.swift` file will look something like...
+The generated `String+Localizable.swift` file will look something like...
 
 ```swift
-extension String {
-    static let myString: String = "MY_STRING"
+public extension String {
+    static let myLocalizedString: String = "MY_STRING"
 }
 ```
 
@@ -56,7 +56,7 @@ var myLocalizedString: String = .myString
 ### Formatting
 
 Specifying an output format with the `--format` or `-f` options
-will generate string-keys in that given format. XCTwine supports
+will generate string-keys in a given format. XCTwine supports
 the following formats:
 
 - `none`: No key formatting
@@ -76,15 +76,15 @@ will generate string-keys in a wrapped namespace - instead of
 directly as an extension on `String`. For example, the following
 command:
 
-- `$ xctwine Localizable.xcstrings String+Localized.swift --namespace=localized`
+- `$ xctwine Localizable.xcstrings String+Localizable.swift --namespace=localized`
 
-Will generate a `String+Localized.swift` file that looks something like...
+Will generate a `String+Localizable.swift` file that looks something like...
 
 ```swift
-extension String {
+public extension String {
 
     struct XCTwine {
-        let myString: String = "MY_STRING"
+        public let myString: String = "MY_STRING"
     }
 
     var localized: XCTwine {
@@ -100,6 +100,33 @@ extension String {
 var myLocalizedString: String = .localized.myString
 ```
 
+## Xcode Plugin
+
+XCTwine also comes packaged as an Xcode build plugin 
+for easy integration with your build pipeline.
+After installing XCTwine, just add it to your target's
+build-tool plugin list under:
+
+- `Project → Targets → Build Phases → Run Build-Tool Plugins`
+
+## @Localized
+
+In addition to the tool, this package also includes a `Localized`
+module with a small `@Localized` property-wrapper for easy 
+localized-string lookup...
+
+```swift
+@Localized var myLocalizedString: String = "MY_STRING"
+```
+
+...and when combined with XCTwine's generated string-extensions,
+localized string initialization is as clean & simple as
+
+```swift
+@Localized var myLocalizedString: String = .myString
+```
+
 ## Contributing
 
-Pull-requests are more than welcome. Bug fix? Feature? Open a PR and we'll get it merged in! 🎉
+Pull-requests are more than welcome. 
+Bug fix? Feature? Open a PR and we'll get it merged in! 🎉

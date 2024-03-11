@@ -16,10 +16,18 @@ struct File: ExpressibleByArgument {
         return .init(filePath: self.path)
     }
     
-    var filename: String {
+    var name: String {
         
         return self.pathUrl
             .lastPathComponent
+        
+    }
+    
+    var stem: String {
+        
+        return self.name
+            .components(separatedBy: ".")
+            .first ?? self.name
         
     }
     
