@@ -14,7 +14,7 @@ let package = Package(
 
         .executable(
             name: "xctwine", 
-            targets: ["XCTwine"]
+            targets: ["xctwine"]
         ),
 
         .plugin(
@@ -44,7 +44,7 @@ let package = Package(
         ),
         
         .executableTarget(
-            name: "XCTwine",
+            name: "xctwine",
             dependencies: [
                 
 				.product(
@@ -65,7 +65,7 @@ let package = Package(
             name: "XCTwinePlugin",
             capability: .buildTool(),
             dependencies: [
-                .target(name: "XCTwine")
+                .target(name: "xctwine")
             ],
             path: "Plugins/XCTwinePlugin"
         )
