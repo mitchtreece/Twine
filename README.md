@@ -1,4 +1,4 @@
-![Lumberjack](Assets/Banner.png)
+![Twine](Assets/Banner.png)
 
 <div align="center">
 
@@ -9,33 +9,33 @@
 
 </div>
 
-# XCTwine
+# Twine
 
-Lightweight Swift command-line tool that helps translate localized
-Xcode string files (xcstrings) into typed string extensions 🧶
+Lightweight helper library & command-line tool that makes working
+with Xcode string catalogues (xcstrings) & localized strings a breeze 🧶
 
 ## Installation
 
 ### SPM
 
 The easiest way to get started is by installing via Xcode. 
-Just add XCTwine as a Swift package dependency.
+Just add Twine as a Swift package dependency.
 
-If you're adding XCTwine as a dependency of your own Swift package, 
+If you're adding Twine as a dependency of your own Swift package, 
 just add a package entry to your dependencies.
 
 ```swift
 .package(
-    name: "XCTwine",
-    url: "https://github.com/mitchtreece/XCTwine",
+    name: "Twine",
+    url: "https://github.com/mitchtreece/Twine",
     .upToNextMajor(from: .init(1, 0, 0))
 )
 ```
 
-## Usage
+## XCTwine
 
-XCTwine is extremely lightweight - at its simplest, 
-it can be used with only input & output file arguments:
+The `xctwine` command-line tool is extremely lightweight.
+At its simplest, it can be used with only input & output file arguments:
 
 - `$ xctwine Localizable.xcstrings String+Localizable.swift`
 
@@ -56,7 +56,7 @@ var myLocalizedString: String = .myString
 ### Formatting
 
 Specifying an output format with the `--format` or `-f` options
-will generate string-keys in a given format. XCTwine supports
+will generate string-keys in a given format. `xctwine` supports
 the following formats:
 
 - `none`: No key formatting
@@ -103,26 +103,29 @@ var myLocalizedString: String = .localized.myString
 ## Xcode Plugin
 
 XCTwine also comes packaged as an Xcode build plugin 
-for easy integration with your build pipeline.
-After installing XCTwine, just add it to your target's
-build-tool plugin list under:
+for easy integration with your pipeline. After installation, 
+just add it to your target's build-tool plugin list under:
 
 - `Project → Targets → Build Phases → Run Build-Tool Plugins`
 
 ## @Localized
 
-In addition to the tool, this package also includes a `Localized`
-module with a small `@Localized` property-wrapper for easy 
+In addition to the tool, this package also includes a small
+helper library containing a `@Localized` property-wrapper for easy 
 localized-string lookup...
 
 ```swift
+import Twine
+
 @Localized var myLocalizedString: String = "MY_STRING"
 ```
 
-...and when combined with XCTwine's generated string-extensions,
+...and when combined with `xctwine` generated string-extensions,
 localized string initialization is as clean & simple as
 
 ```swift
+import Twine
+
 @Localized var myLocalizedString: String = .myString
 ```
 

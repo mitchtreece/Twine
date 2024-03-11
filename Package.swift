@@ -3,23 +3,23 @@
 import PackageDescription
 
 let package = Package(
-    name: "XCTwine",
+    name: "Twine",
     platforms: [.macOS(.v13)],
     products: [
 
+        .library(
+            name: "Twine",
+            targets: ["Twine"]
+        ),
+
         .executable(
             name: "xctwine", 
-            targets: ["xctwine"]
+            targets: ["XCTwine"]
         ),
 
         .plugin(
             name: "XCTwinePlugin",
             targets: ["XCTwinePlugin"]
-        ),
-        
-        .library(
-            name: "Localized",
-            targets: ["Localized"]
         )
 
     ],
@@ -37,9 +37,14 @@ let package = Package(
         
 	],
     targets: [
+
+        .target(
+            name: "Twine",
+            path: "Sources/Twine"
+        ),
         
         .executableTarget(
-            name: "xctwine",
+            name: "XCTwine",
             dependencies: [
                 
 				.product(
@@ -60,14 +65,9 @@ let package = Package(
             name: "XCTwinePlugin",
             capability: .buildTool(),
             dependencies: [
-                .target(name: "xctwine")
+                .target(name: "XCTwine")
             ],
             path: "Plugins/XCTwinePlugin"
-        ),
-        
-        .target(
-            name: "Localized",
-            path: "Sources/Localized"
         )
 
     ]
