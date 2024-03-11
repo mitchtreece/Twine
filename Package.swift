@@ -15,6 +15,11 @@ let package = Package(
         .plugin(
             name: "XCTwinePlugin",
             targets: ["XCTwinePlugin"]
+        ),
+        
+        .library(
+            name: "Localized",
+            targets: ["Localized"]
         )
 
     ],
@@ -58,6 +63,11 @@ let package = Package(
                 .target(name: "xctwine")
             ],
             path: "Plugins/XCTwinePlugin"
+        ),
+        
+        .target(
+            name: "Localized",
+            path: "Sources/Localized"
         )
 
     ]

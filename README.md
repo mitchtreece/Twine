@@ -43,7 +43,7 @@ The generated `String+Localizable.swift` file will look something like...
 
 ```swift
 public extension String {
-    static let myString: String = "MY_STRING"
+    static let myLocalizedString: String = "MY_STRING"
 }
 ```
 
@@ -109,6 +109,26 @@ build-tool plugin list under:
 
 - `Project → Targets → Build Phases → Run Build-Tool Plugins`
 
+## @Localized
+
+In addition to the tool, this package also includes a `Localized`
+module with a small `@Localized` property-wrapper for easy 
+localized-string lookup...
+
+```swift
+@Localized var myLocalizedString: String = "MY_STRING"
+print(myLocalizedString) => "My localized string"
+```
+
+...and when combined with XCTwine's generated string-extensions,
+localized string initialization is as clean & simple as
+
+```swift
+@Localized var myLocalizedString: String = .myString
+print(myLocalizedString) => "My localized string"
+```
+
 ## Contributing
 
-Pull-requests are more than welcome. Bug fix? Feature? Open a PR and we'll get it merged in! 🎉
+Pull-requests are more than welcome. 
+Bug fix? Feature? Open a PR and we'll get it merged in! 🎉
