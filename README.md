@@ -117,7 +117,6 @@ localized-string lookup...
 
 ```swift
 @Localized var myLocalizedString: String = "MY_STRING"
-print(myLocalizedString) => "My localized string"
 ```
 
 ...and when combined with XCTwine's generated string-extensions,
@@ -125,7 +124,6 @@ localized string initialization is as clean & simple as
 
 ```swift
 @Localized var myLocalizedString: String = .myString
-print(myLocalizedString) => "My localized string"
 ```
 
 ## Contributing
