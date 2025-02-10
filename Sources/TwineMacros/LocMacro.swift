@@ -14,7 +14,6 @@ import SwiftCompilerPlugin
 enum LocMacroError: Error {
     
     case invalidLocalizationKey
-    case invalidBundle
     
 }
 
@@ -34,14 +33,15 @@ public struct LocMacro: ExpressionMacro {
             
         }
         
-        guard let bundleExpression = node.arguments.last?.expression.as(StringLiteralExprSyntax.self) else {
+        var bundleExpression: StringLiteralExprSyntax?
+        
+        if node.arguments.count > 1 {
             
-            context.diagnose(Self.error(
-                node,
-                "Failed to parse bundle"
-            ))
-            
-            throw LocMacroError.invalidBundle
+            bundleExpression = node
+                .arguments
+                .last?
+                .expression
+                .as(StringLiteralExprSyntax.self)
             
         }
         
@@ -50,14 +50,18 @@ public struct LocMacro: ExpressionMacro {
             LabeledExprSyntax(
                 label: "localized",
                 expression: locKeyExpression,
-                trailingComma: .commaToken()
+                trailingComma: (bundleExpression != nil) ? .commaToken() : nil
             )
             
-            LabeledExprSyntax(
-                label: "bundle",
-                expression: bundleExpression
-            )
-            
+            if let bundleExpression {
+                
+                LabeledExprSyntax(
+                    label: "bundle",
+                    expression: bundleExpression
+                )
+                
+            }
+        
         }
         
         return ExprSyntax(FunctionCallExprSyntax(

@@ -11,9 +11,9 @@ import Foundation
 public macro loc(
     
     _ key: String,
-    bundle: Bundle
+    bundle: Bundle? = nil
     
-) = #externalMacro(
+) -> String = #externalMacro(
     
     module: "TwineMacros",
     type: "LocMacro"
