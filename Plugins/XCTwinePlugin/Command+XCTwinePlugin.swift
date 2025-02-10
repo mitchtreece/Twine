@@ -49,7 +49,8 @@ extension Command {
             arguments: [
                 file.path,
                 context.outputPath(for: file),
-                "--namespace=key"
+                "--namespace=key",
+                "--bundle-ext"
             ],
             inputFiles: [file.path],
             outputFiles: [context.outputPath(for: file)]
