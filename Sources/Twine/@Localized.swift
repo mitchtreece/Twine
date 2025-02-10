@@ -46,15 +46,6 @@ public struct Localized {
         
     }
     
-    public init(wrappedValue: String) {
-        
-        self.init(
-            wrappedValue: wrappedValue,
-            bundle: .module
-        )
-        
-    }
-    
     // MARK: Private
     
     private mutating func update() {

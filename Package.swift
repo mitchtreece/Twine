@@ -52,10 +52,7 @@ let package = Package(
             dependencies: [
                 .target(name: "TwineMacros")
             ],
-            path: "Sources/Twine",
-            resources: [
-                .copy("Resources/Dummy.txt")
-            ]
+            path: "Sources/Twine"
         ),
         
         .executableTarget(

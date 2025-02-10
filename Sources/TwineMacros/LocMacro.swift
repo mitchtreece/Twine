@@ -14,6 +14,7 @@ import SwiftCompilerPlugin
 enum LocMacroError: Error {
     
     case invalidLocalizationKey
+    case invalidBundle
     
 }
 
@@ -22,7 +23,7 @@ public struct LocMacro: ExpressionMacro {
     public static func expansion(of node: some SwiftSyntax.FreestandingMacroExpansionSyntax,
                                  in context: some SwiftSyntaxMacros.MacroExpansionContext) throws -> SwiftSyntax.ExprSyntax {
                 
-        guard let localizationKey = node.arguments.first?.expression.description else {
+        guard let locKeyExpression = node.arguments.first?.expression.as(StringLiteralExprSyntax.self) else {
             
             context.diagnose(Self.error(
                 node,
@@ -33,49 +34,38 @@ public struct LocMacro: ExpressionMacro {
             
         }
         
-        let bundle = MemberAccessExprSyntax(
-            base: DeclReferenceExprSyntax(baseName: .identifier("Bundle")),
-            period: .periodToken(),
-            name: .identifier("module")
-        )
+        guard let bundleExpression = node.arguments.last?.expression.as(StringLiteralExprSyntax.self) else {
+            
+            context.diagnose(Self.error(
+                node,
+                "Failed to parse bundle"
+            ))
+            
+            throw LocMacroError.invalidBundle
+            
+        }
         
-        let arguments = LabeledExprListSyntax {
+        let fnArgs = LabeledExprListSyntax {
             
             LabeledExprSyntax(
-                label: .identifier("localized"),
-                colon: .colonToken(),
-                expression: StringLiteralExprSyntax(
-                    openingQuote: .stringQuoteToken(),
-                    content: localizationKey,
-                    closingQuote: .stringQuoteToken()
-                ),
+                label: "localized",
+                expression: locKeyExpression,
                 trailingComma: .commaToken()
             )
             
-//            LabeledExprSyntax(
-//                label: .identifier("defaultValue"),
-//                colon: .colonToken(),
-//                expression: defaultValueLiteral,
-//                trailingComma: .commaToken()
-//            )
-            
             LabeledExprSyntax(
-                label: .identifier("bundle"),
-                colon: .colonToken(),
-                expression: bundle,
-                trailingComma: nil
+                label: "bundle",
+                expression: bundleExpression
             )
             
         }
         
-        let functionCall = FunctionCallExprSyntax(
-            calledExpression: ExprSyntax(DeclReferenceExprSyntax(baseName: "String")),
+        return ExprSyntax(FunctionCallExprSyntax(
+            calledExpression: DeclReferenceExprSyntax(baseName: "String"),
             leftParen: .leftParenToken(),
-            arguments: arguments,
+            arguments: fnArgs,
             rightParen: .rightParenToken()
-        )
-
-        return ExprSyntax(functionCall)
+        ))
         
     }
     

@@ -10,7 +10,8 @@ import Foundation
 @freestanding(expression)
 public macro loc(
     
-    _ key: String
+    _ key: String,
+    bundle: Bundle
     
 ) = #externalMacro(
     
