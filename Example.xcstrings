@@ -1,0 +1,60 @@
+{
+    "sourceLanguage" : "en",
+    "strings" : {
+        "EXAMPLE" : {
+            "comment" : "This is a localized string",
+            "extractionState" : "manual",
+            "localizations" : {
+                "en" : {
+                    "stringUnit" : {
+                        "state" : "translated",
+                        "value" : "Hello, world!"
+                    }
+                },
+                "es" : {
+                    "stringUnit" : {
+                        "state" : "translated",
+                        "value" : "¡Hola Mundo!"
+                    }
+                }
+            }
+        },
+        "example" : {
+            "comment" : "This is a duplicate localized string",
+            "extractionState" : "manual",
+            "localizations" : {
+                "en" : {
+                    "stringUnit" : {
+                        "state" : "translated",
+                        "value" : "Hello, world... again!"
+                    }
+                },
+                "es" : {
+                    "stringUnit" : {
+                        "state" : "translated",
+                        "value" : "Hola mundo... ¡otra vez!"
+                    }
+                }
+            }
+        },
+        "eXaMpLe" : {
+            "comment" : "This is another duplicate localized string",
+            "extractionState" : "manual",
+            "localizations" : {
+                "en" : {
+                    "stringUnit" : {
+                        "state" : "translated",
+                        "value" : "Hello, world... again!"
+                    }
+                },
+                "es" : {
+                    "stringUnit" : {
+                        "state" : "translated",
+                        "value" : "Hola mundo... ¡otra vez!"
+                    }
+                }
+            }
+        }
+    },
+    "version" : "1.0"
+}

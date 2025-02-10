@@ -94,40 +94,70 @@ struct XCTwine: ParsableCommand {
         
         log("🧶 Translating \(self.inputFile.name.green.bold) → \(self.outputFile.name.green.bold)")
         
+        if let namespace {
+            log("📦 Using namespace: \(namespace.green)")
+        }
+        
         guard let inputFileJson = getJsonFromFile(self.inputFile) else {
             error(.inputFileJsonSerialization)
             return
         }
         
-        guard let inputFileStringsJson = inputFileJson["strings"] as? [String: Any] else {
+        guard let inputFileStringsJson = (inputFileJson["strings"] as? [String: Any])?.sorted(by: { $0.0 < $1.0 }) else {
             error(.inputFileInvalidJson)
             return
         }
         
-        let entries = inputFileStringsJson.map { pair in
+        var entries = [StringEntry]()
+        
+        for (key, value) in inputFileStringsJson {
             
-            let payload = (pair.value as? [String: Any])
+            let payload = value as? [String: Any]
             
-            return StringEntry(
-                key: pair.key,
+            let duplicateKeyCount = entries.filter { entry in
+            
+                let existingKey = StringEntry.rawFormatKey(
+                    entry.key,
+                    format: self.keyFormat
+                )
+                
+                let proposedKey = StringEntry.rawFormatKey(
+                    key,
+                    format: self.keyFormat
+                )
+                                
+                return proposedKey == existingKey
+                
+            }
+            .count
+                        
+            entries.append(StringEntry(
+                key: key,
                 format: self.keyFormat,
-                comment: payload?["comment"] as? String
-            )
+                comment: payload?["comment"] as? String,
+                duplicateIndex: (duplicateKeyCount > 0) ? UInt(duplicateKeyCount) : nil
+            ))
             
         }
-        .sorted(by: { $0.key < $1.key })
         
         guard !entries.isEmpty else {
             error("No localization entries, exiting")
             return
         }
-        
+                
         // Input localization keys
         
         log("🔑 Found \(entries.count) localization entry(s)")
         
         for entry in entries {
-            log("   ﹂\(entry.key.green)")
+            
+            if let _ = entry.duplicateIndex {
+                log("   ﹂\(entry.key.green) → \(entry.formattedKey.green)" + " (duplicate)".yellow)
+            }
+            else {
+                log("   ﹂\(entry.key.green) → \(entry.formattedKey.green)")
+            }
+            
         }
         
         // Generate output file

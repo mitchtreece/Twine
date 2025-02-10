@@ -77,9 +77,9 @@ will generate string-keys in a wrapped namespace - instead of
 directly as an extension on `String`. For example, the following
 command:
 
-- `$ xctwine Localizable.xcstrings String+Localizable.swift --namespace=localized`
+- `$ xctwine Localizable.xcstrings String+Localizable.swift --namespace=key`
 
-Will generate a `String+Localizable.swift` file that looks something like...
+Will generate a `String+Localizable.swift` file that looks something like:
 
 ```swift
 public extension String {
@@ -88,17 +88,17 @@ public extension String {
         public let myString: String = "MY_STRING"
     }
 
-    var localized: XCTwine {
+    var key: XCTwine {
         return XCTwine()
     }
 
 }
 ```
 
-...which can then be referenced directly in your project like
+Which can then be referenced directly in your project like:
 
 ```swift
-var myLocalizedString: String = .localized.myString
+var myLocalizedString: String = .key.myString
 ```
 
 ## Xcode Plugin
@@ -109,11 +109,18 @@ just add it to your target's build-tool plugin list under:
 
 - `Project → Targets → Build Phases → Run Build-Tool Plugins`
 
-## @Localized
+By default, the plugin will execute with the following parameters:
+
+`xctwine <input> <output> --namespace=key`
+
+## Module
 
 In addition to the tool, this package also includes a small
-helper library containing a `@Localized` property-wrapper for easy 
-localized-string lookup...
+helper module containing some property-wrappers & macros.
+
+### @Localized
+
+`@Localized` is a property-wrapper for easy localized-string lookup:
 
 ```swift
 import Twine
@@ -122,12 +129,30 @@ import Twine
 ```
 
 ...and when combined with `xctwine` generated string-extensions,
-localized string initialization is as clean & simple as
+localized string initialization is as clean & simple as:
 
 ```swift
 import Twine
 
-@Localized var myLocalizedString: String = .myString
+@Localized var myLocalizedString: String = .key.myString
+```
+
+## #loc
+
+`#loc` is an inline expression macro for easy localized-string lookup:
+
+```swift
+import Twine
+
+var myLocalizedString = #loc("MY_STRING")
+```
+
+...or...
+
+```swift
+import Twine
+
+var myLocalizedString = #loc(.key.myString)
 ```
 
 ## Contributing
