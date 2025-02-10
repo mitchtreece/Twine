@@ -19,8 +19,8 @@ enum LocMacroError: Error {
 
 public struct LocMacro: ExpressionMacro {
     
-    public static func expansion(of node: some SwiftSyntax.FreestandingMacroExpansionSyntax,
-                                 in context: some SwiftSyntaxMacros.MacroExpansionContext) throws -> SwiftSyntax.ExprSyntax {
+    public static func expansion(of node: some FreestandingMacroExpansionSyntax,
+                                 in context: some MacroExpansionContext) throws -> ExprSyntax {
                 
         guard let locKeyExpression = node.arguments.first?.expression.as(StringLiteralExprSyntax.self) else {
             
