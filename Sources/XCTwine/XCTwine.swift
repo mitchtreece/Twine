@@ -60,6 +60,15 @@ struct XCTwine: ParsableCommand {
     )
     private var keyFormat: KeyFormat = .camel
     
+    @Flag(
+        name: [
+            .customShort("b"),
+            .customLong("bundle-ext")
+        ],
+        help: "Flag indicating if bundle extensions should be generated"
+    )
+    private var shouldGenerateBundleExtensions: Bool = false
+    
     static let configuration = CommandConfiguration(
         commandName: "xctwine",
         abstract: "A Swift command-line tool for translating xcstring catalogue's into typed string extensions"
@@ -95,6 +104,10 @@ struct XCTwine: ParsableCommand {
         
         if let namespace {
             log("📦 Using namespace: \(namespace.green)")
+        }
+        
+        if self.shouldGenerateBundleExtensions {
+            log("🏗️ Generating bundle extensions")
         }
         
         guard let inputFileJson = getJsonFromFile(self.inputFile) else {
@@ -214,6 +227,35 @@ struct XCTwine: ParsableCommand {
         """
         
         string += "\n\n"
+        
+        if self.shouldGenerateBundleExtensions {
+            
+            string += "import Twine\n\n"
+            
+            string += "public extension Localized /* Bundle */ {"
+            string += "\n\n"
+            string += "    init(wrappedValue: String) {\n\n"
+            string += "        self.init(\n"
+            string += "            wrappedValue: wrappedValue,\n"
+            string += "            in: .module\n"
+            string += "        )\n\n"
+            string += "    }"
+            string += "\n\n"
+            string += "}"
+            
+            string += "\n\n"
+            
+            string += "public extension String /* Bundle */ {"
+            string += "\n\n"
+            string += "    var localized: String {\n"
+            string += "        return localized(in: .module)\n"
+            string += "    }"
+            string += "\n\n"
+            string += "}"
+            
+            string += "\n\n"
+                        
+        }
         
         if let namespace {
                         
