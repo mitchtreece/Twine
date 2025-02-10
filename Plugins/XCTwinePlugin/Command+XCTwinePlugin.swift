@@ -23,7 +23,7 @@ private extension PluginContextProtocol {
         
         return self.pluginWorkDirectory
             .appending(subpath: "XCTwinePlugin")
-            .appending("String+\(file.path.stem).swift")
+            .appending("StringProtocol+\(file.path.stem).swift")
         
     }
     
