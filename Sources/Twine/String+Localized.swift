@@ -16,6 +16,7 @@ public extension String /* Localization */ {
         
         return String(
             localized: .init(self),
+            table: table,
             bundle: bundle,
             locale: locale,
             comment: comment
