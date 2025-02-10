@@ -36,7 +36,6 @@ import Foundation
 import ArgumentParser
 import Rainbow
 
-
 @main
 struct XCTwine: ParsableCommand {
     
@@ -215,7 +214,7 @@ struct XCTwine: ParsableCommand {
         """
         
         string += "\n\n"
-        string += "public extension String /* \(self.inputFile.stem) */ {"
+        string += "public extension StringProtocol /* \(self.inputFile.stem) */ {"
         string += "\n\n"
         
         if let namespaceName = self.namespace {
