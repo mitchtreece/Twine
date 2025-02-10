@@ -21,8 +21,8 @@ public struct LocMacro: ExpressionMacro {
     
     public static func expansion(of node: some FreestandingMacroExpansionSyntax,
                                  in context: some MacroExpansionContext) throws -> ExprSyntax {
-                
-        guard let locKeyExpression = node.arguments.first?.expression.as(StringLiteralExprSyntax.self) else {
+        
+        guard let localizationKey = node.arguments.first?.expression.description else {
             
             context.diagnose(Self.error(
                 node,
@@ -32,7 +32,7 @@ public struct LocMacro: ExpressionMacro {
             throw LocMacroError.invalidLocalizationKey
             
         }
-        
+                        
         var bundleExpression: StringLiteralExprSyntax?
         
         if node.arguments.count > 1 {
@@ -50,7 +50,11 @@ public struct LocMacro: ExpressionMacro {
             LabeledExprSyntax(
                 label: "localized",
                 colon: .colonToken(),
-                expression: locKeyExpression,
+                expression: MemberAccessExprSyntax(
+                    base: DeclReferenceExprSyntax(baseName: "LocalizationValue"),
+                    period: .periodToken(),
+                    name: .identifier("init(\(localizationKey)")
+                ),
                 trailingComma: (bundleExpression != nil) ? .commaToken() : nil
             )
             

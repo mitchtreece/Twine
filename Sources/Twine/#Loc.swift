@@ -11,7 +11,7 @@ import Foundation
 public macro loc(
     
     _ key: String,
-    bundle: Bundle? = nil
+    in bundle: Bundle? = nil
     
 ) -> String = #externalMacro(
     

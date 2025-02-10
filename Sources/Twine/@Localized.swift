@@ -37,7 +37,7 @@ public struct Localized {
     /// - parameter wrappedValue: The localized string key.
     /// - parameter bundle: The bundle containing localized string assets.
     public init(wrappedValue: String,
-                bundle: Bundle? = nil) {
+                in bundle: Bundle? = nil) {
         
         self.key = wrappedValue
         self.bundle = bundle
