@@ -45,10 +45,11 @@ public struct LocMacro: ExpressionMacro {
             
         }
         
-        let fnArgs = LabeledExprListSyntax {
+        let initArgs = LabeledExprListSyntax {
             
             LabeledExprSyntax(
                 label: "localized",
+                colon: .colonToken(),
                 expression: locKeyExpression,
                 trailingComma: (bundleExpression != nil) ? .commaToken() : nil
             )
@@ -57,6 +58,7 @@ public struct LocMacro: ExpressionMacro {
                 
                 LabeledExprSyntax(
                     label: "bundle",
+                    colon: .colonToken(),
                     expression: bundleExpression
                 )
                 
@@ -67,7 +69,7 @@ public struct LocMacro: ExpressionMacro {
         return ExprSyntax(FunctionCallExprSyntax(
             calledExpression: DeclReferenceExprSyntax(baseName: "String"),
             leftParen: .leftParenToken(),
-            arguments: fnArgs,
+            arguments: initArgs,
             rightParen: .rightParenToken()
         ))
         
