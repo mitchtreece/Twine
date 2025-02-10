@@ -1,5 +1,5 @@
 //
-//  Localized.swift
+//  @Localized.swift
 //  Twine
 //
 //  Created by Mitch Treece on 3/11/24.
@@ -8,15 +8,16 @@
 import Foundation
 import Combine
 
-/// Localization property-wrapper that replaces
-/// a string-key with a localized value.
+/// Localized string property-wrapper that replaces a
+/// string-key value with a localized value.
 @propertyWrapper
 public struct Localized {
-    
+        
     private var key: String
     private var value: String!
+    private var bundle: Bundle
     
-    /// A localized value publisher.
+    /// A localized string value publisher.
     public var valuePublisher: AnyPublisher<String, Never> {
         return self._valuePublisher.eraseToAnyPublisher()
     }
@@ -32,16 +33,25 @@ public struct Localized {
     
     private let _valuePublisher = PassthroughSubject<String, Never>()
     
-    /// Initializes the property-wrapper with a
-    /// localization string-key.
-    ///
-    /// - parameter wrappedValue: The string-key to use
-    /// when looking up a localized value.
-    public init(wrappedValue: String) {
+    /// Initializes the property-wrapper with a localization string-key.
+    /// - parameter wrappedValue: The localized string key.
+    /// - parameter bundle: The bundle containing localized string assets.
+    public init(wrappedValue: String,
+                bundle: Bundle) {
         
         self.key = wrappedValue
+        self.bundle = bundle
         
         update()
+        
+    }
+    
+    public init(wrappedValue: String) {
+        
+        self.init(
+            wrappedValue: wrappedValue,
+            bundle: .module
+        )
         
     }
     
@@ -50,7 +60,8 @@ public struct Localized {
     private mutating func update() {
         
         self.value = String(
-            localized: .init(self.key)
+            localized: .init(self.key),
+            bundle: self.bundle
         )
         
         self._valuePublisher

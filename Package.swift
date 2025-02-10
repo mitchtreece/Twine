@@ -1,6 +1,7 @@
 // swift-tools-version: 5.9
 
 import PackageDescription
+import CompilerPluginSupport
 
 let package = Package(
     name: "Twine",
@@ -34,6 +35,11 @@ let package = Package(
         ),
         
         .package(
+            url: "https://github.com/apple/swift-syntax.git",
+            "600.0.0"..<"699.99.99"
+        ),
+        
+        .package(
             url: "https://github.com/onevcat/Rainbow",
             .upToNextMajor(from: "4.0.0")
         )
@@ -43,7 +49,13 @@ let package = Package(
 
         .target(
             name: "Twine",
-            path: "Sources/Twine"
+            dependencies: [
+                .target(name: "TwineMacros")
+            ],
+            path: "Sources/Twine",
+            resources: [
+                .copy("Resources/Dummy.txt")
+            ]
         ),
         
         .executableTarget(
@@ -71,6 +83,15 @@ let package = Package(
                 .target(name: "xctwine")
             ],
             path: "Plugins/XCTwinePlugin"
+        ),
+        
+        .macro(
+            name: "TwineMacros",
+            dependencies: [
+                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+                .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
+            ],
+            path: "Sources/TwineMacros"
         )
 
     ]
