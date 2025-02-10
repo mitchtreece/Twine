@@ -9,15 +9,16 @@ import Foundation
 
 public extension String /* Localization */ {
     
-    var localized: String {
-        return localized(in: nil)
-    }
-    
-    func localized(in bundle: Bundle? = nil) -> String {
+    func localized(locale: Locale = .current,
+                   table: String? = nil,
+                   comment: StaticString? = nil,
+                   in bundle: Bundle? = nil) -> String {
         
         return String(
             localized: .init(self),
-            bundle: bundle
+            bundle: bundle,
+            locale: locale,
+            comment: comment
         )
         
     }
