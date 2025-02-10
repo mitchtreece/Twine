@@ -33,15 +33,12 @@ public struct LocMacro: ExpressionMacro {
             
         }
                         
-        var bundleExpression: StringLiteralExprSyntax?
+        var bundleExpression: ExprSyntax?
         
-        if node.arguments.count > 1 {
+        if let arg = node.arguments.last,
+           node.arguments.count > 1 {
             
-            bundleExpression = node
-                .arguments
-                .last?
-                .expression
-                .as(StringLiteralExprSyntax.self)
+            bundleExpression = arg.expression
             
         }
         
@@ -51,9 +48,9 @@ public struct LocMacro: ExpressionMacro {
                 label: "localized",
                 colon: .colonToken(),
                 expression: MemberAccessExprSyntax(
-                    base: DeclReferenceExprSyntax(baseName: "LocalizationValue"),
+                    base: DeclReferenceExprSyntax(baseName: ""), // LocalizationValue
                     period: .periodToken(),
-                    name: .identifier("init(\(localizationKey)")
+                    name: .identifier("init(\(localizationKey))")
                 ),
                 trailingComma: (bundleExpression != nil) ? .commaToken() : nil
             )
