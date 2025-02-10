@@ -15,7 +15,7 @@ public struct Localized {
         
     private var key: String
     private var value: String!
-    private var bundle: Bundle
+    private var bundle: Bundle?
     
     /// A localized string value publisher.
     public var valuePublisher: AnyPublisher<String, Never> {
@@ -37,7 +37,7 @@ public struct Localized {
     /// - parameter wrappedValue: The localized string key.
     /// - parameter bundle: The bundle containing localized string assets.
     public init(wrappedValue: String,
-                bundle: Bundle) {
+                bundle: Bundle? = nil) {
         
         self.key = wrappedValue
         self.bundle = bundle
