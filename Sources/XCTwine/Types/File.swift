@@ -60,4 +60,22 @@ struct File: ExpressibleByArgument {
         self.path = argument
     }
     
+    static func json(_ file: File) -> [String: Any]? {
+        
+        do {
+            
+            let data = try Data(contentsOf: file.pathUrl)
+            
+            let json = try JSONSerialization
+                .jsonObject(with: data)
+            
+            return json as? [String: Any]
+            
+        }
+        catch {
+            return nil
+        }
+        
+    }
+    
 }

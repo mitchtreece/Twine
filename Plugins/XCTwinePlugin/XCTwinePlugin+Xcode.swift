@@ -14,11 +14,24 @@ extension XCTwinePlugin: XcodeBuildToolPlugin {
     
     func createBuildCommands(context: XcodePluginContext, 
                              target: XcodeTarget) throws -> [Command] {
+
+        let config = target
+            .inputFiles
+            .filter { $0.path.extension == "xctwine" }
+            .first
         
         return try target
             .inputFiles
             .filter { $0.path.extension == "xcstrings" }
-            .map { try .xctwine(file: $0, using: context) }
+            .map { file in
+                
+                try .xctwine(
+                    file: file,
+                    config: config,
+                    using: context
+                )
+                
+            }
         
     }
     

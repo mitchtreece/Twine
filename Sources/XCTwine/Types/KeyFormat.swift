@@ -8,7 +8,7 @@
 import Foundation
 import ArgumentParser
 
-enum KeyFormat: String, ExpressibleByArgument {
+enum KeyFormat: String, ExpressibleByArgument, Decodable {
     
     case none
     case camel

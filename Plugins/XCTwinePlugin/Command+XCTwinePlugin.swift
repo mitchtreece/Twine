@@ -13,6 +13,7 @@ import PackagePlugin
 protocol PluginContextProtocol {
     
     var pluginWorkDirectory: Path { get }
+    
     func tool(named name: String) throws -> PluginContext.Tool
     
 }
@@ -40,18 +41,32 @@ extension PluginContext: PluginContextProtocol {}
 
 extension Command {
     
-    static func xctwine(file: File, 
+    static func xctwine(file: File,
+                        config: File?,
                         using context: PluginContextProtocol) throws -> Command {
-     
+        
+        var additionalArguments = [any CustomStringConvertible]()
+        
+        if let config {
+            
+            additionalArguments
+                .append("--config=\(config.path)")
+            
+        }
+        else {
+            
+            additionalArguments
+                .append("--namespace=twine")
+            
+        }
+        
         return .buildCommand(
             displayName: "XCTwinePlugin: Generate string extensions for \(file.path.lastComponent)",
             executable: try context.tool(named: "xctwine").path,
             arguments: [
                 file.path,
-                context.outputPath(for: file),
-                "--namespace=key",
-                "--bundle-ext"
-            ],
+                context.outputPath(for: file)
+            ] + additionalArguments,
             inputFiles: [file.path],
             outputFiles: [context.outputPath(for: file)]
         )

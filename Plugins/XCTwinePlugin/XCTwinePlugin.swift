@@ -19,9 +19,21 @@ struct XCTwinePlugin: BuildToolPlugin {
             return []
         }
         
+        let config = sourceModule
+            .sourceFiles(withSuffix: "xctwine")
+            .first
+        
         return try sourceModule
             .sourceFiles(withSuffix: "xcstrings")
-            .map { try Command.xctwine(file: $0, using: context) }
+            .map { file in
+                
+                try Command.xctwine(
+                    file: file,
+                    config: config,
+                    using: context
+                )
+                
+            }
         
     }
     

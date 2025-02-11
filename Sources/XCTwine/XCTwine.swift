@@ -46,6 +46,15 @@ struct XCTwine: ParsableCommand {
     private var outputFile: File
     
     @Option(
+        name: [
+            .customShort("c"),
+            .customLong("config")
+        ],
+        help: "Optional configuration file to use"
+    )
+    private var configFile: File?
+    
+    @Option(
         name: .shortAndLong,
         help: "The output string-extension namespace"
     )
@@ -69,11 +78,14 @@ struct XCTwine: ParsableCommand {
     )
     private var shouldGenerateBundleExtensions: Bool = false
     
+    private var xcConfig: Config!
+    
     static let configuration = CommandConfiguration(
         commandName: "xctwine",
         abstract: "A Swift command-line tool for translating xcstring catalogue's into typed string extensions"
     )
     
+    private static let configFileExtension: String = "xctwine"
     private static let stringsFileExtension: String = "xcstrings"
     private static let swiftFileExtension: String = "swift"
     
@@ -100,17 +112,45 @@ struct XCTwine: ParsableCommand {
             
         }
         
-        log("🧶 Translating \(self.inputFile.name.green.bold) → \(self.outputFile.name.green.bold)")
+        log("🧶 Translating \(self.inputFile.name.green) → \(self.outputFile.name.green)")
+                
+        self.xcConfig = Config(
+            namespace: self.namespace,
+            keyFormat: self.keyFormat,
+            generateBundleExtensions: self.shouldGenerateBundleExtensions
+        )
         
-        if let namespace {
-            log("📦 Using namespace: \(namespace.green)")
+        if let configFile {
+            
+            if configFile.exists, configFile.extension == "xctwine" {
+                
+                log("⚙️ Using config file \(configFile.path.green)")
+                
+                self.xcConfig = Config.from(
+                    file: configFile,
+                    namespace: self.namespace,
+                    keyFormat: self.keyFormat,
+                    generateBundleExtensions: self.shouldGenerateBundleExtensions
+                )
+                
+            }
+            else {
+                
+                error("Invalid configuration file")
+                return
+                
+            }
+            
+        }
+        else {
+            log("⚙️ Using config arguments")
         }
         
-        if self.shouldGenerateBundleExtensions {
-            log("🏗️ Generating bundle extensions")
-        }
+        log("   ﹂namespace: \(self.xcConfig.namespace?.green ?? "none".green)")
+        log("   ﹂keyFormat: \(self.xcConfig.keyFormat.rawValue.green)")
+        log("   ﹂bundle-ext: \(self.xcConfig.generateBundleExtensions ? "true".green : "false".green)")
         
-        guard let inputFileJson = getJsonFromFile(self.inputFile) else {
+        guard let inputFileJson = File.json(self.inputFile) else {
             error(.inputFileJsonSerialization)
             return
         }
@@ -130,12 +170,12 @@ struct XCTwine: ParsableCommand {
             
                 let existingKey = StringEntry.rawFormatKey(
                     entry.key,
-                    format: self.keyFormat
+                    format: self.xcConfig.keyFormat
                 )
                 
                 let proposedKey = StringEntry.rawFormatKey(
                     key,
-                    format: self.keyFormat
+                    format: self.xcConfig.keyFormat
                 )
                                 
                 return proposedKey == existingKey
@@ -145,7 +185,7 @@ struct XCTwine: ParsableCommand {
                         
             entries.append(StringEntry(
                 key: key,
-                format: self.keyFormat,
+                format: self.xcConfig.keyFormat,
                 comment: payload?["comment"] as? String,
                 duplicateIndex: (duplicateKeyCount > 0) ? UInt(duplicateKeyCount) : nil
             ))
@@ -174,15 +214,7 @@ struct XCTwine: ParsableCommand {
         
         // Generate output file
         
-        var generateMessage = "📝 Creating \(self.outputFile.name.green.bold) extension file"
-        
-        switch self.keyFormat {
-        case .none: generateMessage += " (unformatted)".yellow
-        case .camel: generateMessage += " (camel-formatted)".yellow
-        case .pascal: generateMessage += " (pascal-formatted)".yellow
-        }
-        
-        log(generateMessage)
+        log("📝 Creating \(self.outputFile.name.green) extension file")
         
         let output = buildOutputString(entries: entries)
         
@@ -203,7 +235,7 @@ struct XCTwine: ParsableCommand {
         
         // Done
         
-        log("🎉 Successfully generated \(self.outputFile.path.green.bold)")
+        log("🎉 Successfully generated \(self.outputFile.path.green)")
         
     }
     
@@ -228,7 +260,7 @@ struct XCTwine: ParsableCommand {
         
         string += "\n\n"
         
-        if self.shouldGenerateBundleExtensions {
+        if self.xcConfig.generateBundleExtensions {
             
             string += "import Twine\n\n"
             
@@ -257,7 +289,7 @@ struct XCTwine: ParsableCommand {
                         
         }
         
-        if let namespace {
+        if let namespace = self.xcConfig.namespace {
                         
             let namespaceType = "XCTwine_\(String(UUID().uuidString.prefix(4)))"
 
@@ -307,24 +339,6 @@ struct XCTwine: ParsableCommand {
         string += "}\n"
         
         return string
-        
-    }
-    
-    private func getJsonFromFile(_ file: File) -> [String: Any]? {
-        
-        do {
-            
-            let data = try Data(contentsOf: file.pathUrl)
-            
-            let json = try JSONSerialization
-                .jsonObject(with: data)
-            
-            return json as? [String: Any]
-            
-        }
-        catch {
-            return nil
-        }
         
     }
     
