@@ -217,6 +217,7 @@ struct XCTwine: ParsableCommand {
             string += """
             public extension LocalizedStringEntry /* Module */ {
             
+                /// Gets a localized string value in the current module.
                 var value: String {
                     self.value(bundle: .module)
                 }
@@ -225,6 +226,8 @@ struct XCTwine: ParsableCommand {
             
             public extension Localized /* Module */ {
             
+                /// Initializes the property-wrapper with a localized
+                /// string key in the current module.
                 init(wrappedValue: String) {
                     
                     self.init(
@@ -238,6 +241,7 @@ struct XCTwine: ParsableCommand {
             
             public extension String /* Module */ {
             
+                /// Gets a localized string value in the current module.
                 var localized: String {
                     self.localized(bundle: .module)
                 }
@@ -250,7 +254,8 @@ struct XCTwine: ParsableCommand {
         }
         
         string += "public struct \(self.xcConfig.namespace) /* \(self.inputFile.name) */ {\n\n"
-
+        string += "    private init() {}\n\n"
+        
         for entry in entries {
             
             if let comment = entry.comment {
