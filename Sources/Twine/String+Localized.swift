@@ -9,17 +9,28 @@ import Foundation
 
 public extension String /* Localization */ {
     
-    func localized(locale: Locale = .current,
+    /// Gets a localized string entry using the receiver as a key.
+    /// - returns: A localized string entry.
+    func asLocalizedStringEntry() -> LocalizedStringEntry {
+        return .init(key: self)
+    }
+    
+    /// Gets a localized string value using the receiver as a key.
+    /// - parameter fallback: A fallback value to use if a localized value cannot be found.
+    /// - parameter locale: The locale to use when localizing interpolated values.
+    /// - parameter table: The bundle's string table to search.
+    /// - parameter bundle: The bundle containing localized string assets.
+    /// - returns: A localized string value.
+    func localized(or fallback: String? = nil,
+                   locale: Locale = .current,
                    table: String? = nil,
-                   comment: StaticString? = nil,
-                   in bundle: Bundle? = nil) -> String {
+                   bundle: Bundle? = nil) -> String {
         
-        return String(
-            localized: .init(self),
-            table: table,
-            bundle: bundle,
+        return asLocalizedStringEntry().value(
+            or: fallback,
             locale: locale,
-            comment: comment
+            table: table,
+            bundle: bundle
         )
         
     }

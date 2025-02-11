@@ -49,14 +49,9 @@ extension Command {
         
         if let config {
             
-            additionalArguments
-                .append("--config=\(config.path)")
-            
-        }
-        else {
-            
-            additionalArguments
-                .append("--namespace=twine")
+            additionalArguments.append(
+                "--config=\(config.path)"
+            )
             
         }
         

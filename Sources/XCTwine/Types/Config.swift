@@ -7,14 +7,14 @@
 
 struct Config: Decodable {
     
-    let namespace: String?
+    let namespace: String
     let keyFormat: KeyFormat
-    let generateBundleExtensions: Bool
+    let moduleExt: Bool
         
     static func from(file: File?,
-                     namespace: String?,
+                     namespace: String,
                      keyFormat: KeyFormat,
-                     generateBundleExtensions: Bool) -> Self? {
+                     moduleExt: Bool) -> Self? {
         
         guard let file,
               let json = File.json(file),
@@ -24,7 +24,7 @@ struct Config: Decodable {
             return .init(
                 namespace: namespace,
                 keyFormat: keyFormat,
-                generateBundleExtensions: generateBundleExtensions
+                moduleExt: moduleExt
             )
             
         }
@@ -32,7 +32,7 @@ struct Config: Decodable {
         return .init(
             namespace: json["namespace"] as? String ?? namespace,
             keyFormat: KeyFormat(rawValue: (json["keyFormat"] as? String) ?? keyFormat.rawValue) ?? keyFormat,
-            generateBundleExtensions: json["bundleExt"] as? Bool ?? generateBundleExtensions
+            moduleExt: json["moduleExt"] as? Bool ?? moduleExt
         )
         
     }
