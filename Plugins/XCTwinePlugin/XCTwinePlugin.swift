@@ -21,7 +21,14 @@ struct XCTwinePlugin: BuildToolPlugin {
         
         let config = sourceModule
             .sourceFiles
-            .first { $0.path.lastComponent == "xctwine" }
+            .first { file in
+                
+                return (
+                    file.path.lastComponent == "xctwine" ||
+                    file.path.lastComponent == "xctwine.json"
+                )
+                
+            }
         
         return try sourceModule
             .sourceFiles(withSuffix: "xcstrings")

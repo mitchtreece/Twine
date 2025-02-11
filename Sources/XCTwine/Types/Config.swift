@@ -11,13 +11,15 @@ struct Config: Decodable {
     let keyFormat: KeyFormat
     let generateBundleExtensions: Bool
         
-    static func from(file: File,
+    static func from(file: File?,
                      namespace: String?,
                      keyFormat: KeyFormat,
-                     generateBundleExtensions: Bool) -> Self {
+                     generateBundleExtensions: Bool) -> Self? {
         
-        guard let json = File.json(file),
-              let args = json["args"] as? [String: Any] else {
+        guard let file,
+              let json = File.json(file),
+              file.exists,
+              (file.name == "xctwine" || file.name == "xctwine.json") else {
             
             return .init(
                 namespace: namespace,
@@ -28,11 +30,11 @@ struct Config: Decodable {
         }
         
         return .init(
-            namespace: args["namespace"] as? String ?? namespace,
-            keyFormat: KeyFormat(rawValue: (args["keyFormat"] as? String) ?? keyFormat.rawValue) ?? keyFormat,
-            generateBundleExtensions: args["bundleExt"] as? Bool ?? generateBundleExtensions
+            namespace: json["namespace"] as? String ?? namespace,
+            keyFormat: KeyFormat(rawValue: (json["keyFormat"] as? String) ?? keyFormat.rawValue) ?? keyFormat,
+            generateBundleExtensions: json["bundleExt"] as? Bool ?? generateBundleExtensions
         )
         
     }
-        
+    
 }

@@ -38,20 +38,57 @@ just add a package entry to your dependencies.
 The `xctwine` command-line tool is extremely lightweight.
 At its simplest, it can be used with only input & output file arguments:
 
-- `$ xctwine Localizable.xcstrings String+Localizable.swift`
+- `$ xctwine Localizable.xcstrings Strings.swift`
 
-The generated `String+Localizable.swift` file will look something like...
+The generated `Strings.swift` file will look something like...
 
 ```swift
-public extension String {
-    static let myLocalizedString: String = "MY_STRING"
+public extension StringProtocol {
+
+    static var helloWorld: String {
+        return "HELLO_WORLD"
+    }
+
 }
 ```
 
-...which can then be referenced directly in your project
+...and can then be referenced directly in your project
 
 ```swift
-var myLocalizedString: String = .myString
+var message: String = .helloWorld
+```
+
+### Namespaces
+
+Specifying a namespace with the `--namespace` or `-n` options
+will generate string-keys in a wrapped namespace - instead of
+directly as an extension on `StringProtocol`. For example, the
+following command:
+
+- `$ xctwine Localizable.xcstrings Strings.swift --namespace=twine`
+
+Will generate a `Strings.swift` file that looks something like...
+
+```swift
+public extension StringProtocol {
+
+    var twine: XCTwine {
+        return XCTwine()
+    }
+
+}
+
+public struct XCTwine {
+
+    public let helloWorld: String = "HELLO_WORLD"
+    
+}
+```
+
+...and then can be referenced directly in your project like:
+
+```swift
+var message: String = .twine.helloWorld
 ```
 
 ### Formatting
@@ -64,46 +101,48 @@ the following formats:
 - `camel`: Camel-cased keys
 - `pascal`: Pascal-cased keys
 
-Given the input key `MY_STRING`, the various formats would translate to:
+Given the input key `HELLO_WORLD`, the various formats would translate to:
 
-- `none` → `MY_STRING` → `MY_STRING`
-- `camel` → `MY_STRING` → `myString`
-- `none` → `MY_STRING` → `MyString`
+- `none` → `HELLO_WORLD` → `HELLO_WORLD`
+- `camel` → `HELLO_WORLD` → `helloWorld`
+- `pascal` → `HELLO_WORLD` → `HelloWorld`
 
-### Namespaces
+### Bundle Extensions
 
-Specifying a namespace with the `--namespace` or `-n` options
-will generate string-keys in a wrapped namespace - instead of
-directly as an extension on `String`. For example, the following
-command:
-
-- `$ xctwine Localizable.xcstrings String+Localizable.swift --namespace=key`
-
-Will generate a `String+Localizable.swift` file that looks something like:
+Specifying a flag with the `--bundleExt` or `-b` options will generate
+`Bundle.module` extensions for use with the other helper property-wrappers
+& macros listed below. This is useful when you are localizing strings across 
+multiple packages & modules. With these extensions, the following...
 
 ```swift
-public extension String {
-
-    struct XCTwine {
-        public let myString: String = "MY_STRING"
-    }
-
-    var key: XCTwine {
-        return XCTwine()
-    }
-
-}
+"HELLO_WORLD".localized(in: Bundle.module)
 ```
 
-Which can then be referenced directly in your project like:
+...Could be simplified to:
 
 ```swift
-var myLocalizedString: String = .key.myString
+"HELLO_WORLD".localized
+```
+
+### Config File
+
+Specifying the config file with the `--config` or `-c` options will load
+arguments from that file, instead of the command-line. This is useful when
+using `xctwine` via the Xcode build plugin listed below. Config files must
+be named either `xctwine` _or_ `xctwine.json`, be json formatted, and contain
+the following fields:
+
+```json
+{
+  "namespace": "YOUR_NAMESPACE_HERE",
+  "keyFormat": "none | camel | pascal",
+  "bundleExt": true | false
+}
 ```
 
 ## Xcode Plugin
 
-XCTwine also comes packaged as an Xcode build plugin 
+`xctwine` also comes packaged as an Xcode build plugin 
 for easy integration with your pipeline. After installation, 
 just add it to your target's build-tool plugin list under:
 
@@ -111,48 +150,38 @@ just add it to your target's build-tool plugin list under:
 
 By default, the plugin will execute with the following parameters:
 
-`xctwine <input> <output> --namespace=key`
+`$ xctwine <input> <output> --namespace=twine`
 
-## Module
+To customize built-time arguments, add a configuration file
+(`xctwine` | `xctwine.json`) to your module's source files.
 
-In addition to the tool, this package also includes a small
-helper module containing some property-wrappers & macros.
+## Helpers
+
+In addition to the executable & build-tool, this package also
+includes a small helper module containing some property-wrappers & macros.
 
 ### @Localized
 
-`@Localized` is a property-wrapper for easy localized-string lookup:
+`@Localized` is a property-wrapper for easy localized-string lookup
 
 ```swift
 import Twine
 
-@Localized var myLocalizedString: String = "MY_STRING"
+@Localized var literalString: String = "HELLO_WORLD"
+@Localized var extensionString: String = .twine.helloWorld
 ```
 
-...and when combined with `xctwine` generated string-extensions,
-localized string initialization is as clean & simple as:
+## String+Localized
+
+If the above property-wrapper doesn't fit your needs, or you need
+inline access to localized strings, `xctwine` also includes some
+direct string extensions to make your life easier.
 
 ```swift
 import Twine
 
-@Localized var myLocalizedString: String = .key.myString
-```
-
-## #loc
-
-`#loc` is an inline expression macro for easy localized-string lookup:
-
-```swift
-import Twine
-
-var myLocalizedString = #loc("MY_STRING")
-```
-
-...or...
-
-```swift
-import Twine
-
-var myLocalizedString = #loc(.key.myString)
+var literalString = "HELLO_WORLD".localized()
+var extensionString = .twine.helloWorld.localized()
 ```
 
 ## Contributing

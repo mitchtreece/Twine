@@ -111,34 +111,16 @@ struct XCTwine: ParsableCommand {
         }
         
         log("🧶 Translating \(self.inputFile.name.green) → \(self.outputFile.name.green)")
-                
-        self.xcConfig = Config(
+        
+        self.xcConfig = Config.from(
+            file: configFile,
             namespace: self.namespace,
             keyFormat: self.keyFormat,
             generateBundleExtensions: self.shouldGenerateBundleExtensions
         )
         
         if let configFile {
-            
-            if configFile.exists, configFile.name == "xctwine" {
-                
-                log("⚙️ Using config file \(configFile.path.green)")
-                
-                self.xcConfig = Config.from(
-                    file: configFile,
-                    namespace: self.namespace,
-                    keyFormat: self.keyFormat,
-                    generateBundleExtensions: self.shouldGenerateBundleExtensions
-                )
-                
-            }
-            else {
-                
-                error("Invalid configuration file")
-                return
-                
-            }
-            
+            log("⚙️ Using config file \(configFile.path.green)")
         }
         else {
             log("⚙️ Using config arguments")

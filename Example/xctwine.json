@@ -1,0 +1,5 @@
+{
+    "namespace": "config",
+    "keyFormat": "camel",
+    "bundleExt": true
+}
