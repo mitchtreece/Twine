@@ -254,7 +254,10 @@ struct XCTwine: ParsableCommand {
         for entry in entries {
             
             if let comment = entry.comment {
-                string += "    /// \(comment)\n"
+                string += "    /// \"\(entry.key)\": \(comment)\n"
+            }
+            else {
+                string += "    /// \"\(entry.key)\"\n"
             }
   
             string += "    public static let \(entry.formattedKey): LocalizedStringEntry = .init(key: \"\(entry.key)\")\n\n"

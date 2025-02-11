@@ -43,11 +43,9 @@ At its simplest, it can be used with only input & output file arguments:
 The generated `Strings.swift` file will look something like...
 
 ```swift
-public extension StringProtocol {
+public struct Twine {
 
-    static var helloWorld: String {
-        return "HELLO_WORLD"
-    }
+    public static let helloWorld: LocalizedStringEntry = .init(key: "HELLO_WORLD")
 
 }
 ```
@@ -55,32 +53,25 @@ public extension StringProtocol {
 ...and can then be referenced directly in your project
 
 ```swift
-var message: String = .helloWorld
+let messageKey: String = Twine.helloWorld.key
+let messageValue: String = Twine.helloWorld.value(...)
 ```
 
 ### Namespaces
 
 Specifying a namespace with the `--namespace` or `-n` options
-will generate string-keys in a wrapped namespace - instead of
-directly as an extension on `StringProtocol`. For example, the
+will generate string-keys in a wrapped type using a custom name,
+instead of using the default `Twine` namespace. For example, the
 following command:
 
-- `$ xctwine Localizable.xcstrings Strings.swift --namespace=twine`
+- `$ xctwine Localizable.xcstrings Strings.swift --namespace=Loc`
 
 Will generate a `Strings.swift` file that looks something like...
 
 ```swift
-public extension StringProtocol {
+public struct Loc {
 
-    var twine: XCTwine {
-        return XCTwine()
-    }
-
-}
-
-public struct XCTwine {
-
-    public let helloWorld: String = "HELLO_WORLD"
+    public static let helloWorld: LocalizedStringEntry = .init(key: "HELLO_WORLD")
     
 }
 ```
@@ -88,7 +79,8 @@ public struct XCTwine {
 ...and then can be referenced directly in your project like:
 
 ```swift
-var message: String = .twine.helloWorld
+let messageKey: String = Loc.helloWorld.key
+let messageValue: String = Loc.helloWorld.value(...)
 ```
 
 ### Formatting
@@ -107,36 +99,38 @@ Given the input key `HELLO_WORLD`, the various formats would translate to:
 - `camel` → `HELLO_WORLD` → `helloWorld`
 - `pascal` → `HELLO_WORLD` → `HelloWorld`
 
-### Bundle Extensions
+### Module Extensions
 
-Specifying a flag with the `--bundleExt` or `-b` options will generate
+Specifying a flag with the `--moduleExt` or `-m` options will generate
 `Bundle.module` extensions for use with the other helper property-wrappers
 & macros listed below. This is useful when you are localizing strings across 
-multiple packages & modules. With these extensions, the following...
+multiple packages & modules. For example, with these extensions, the following...
 
 ```swift
-"HELLO_WORLD".localized(in: Bundle.module)
+"HELLO_WORLD".localized(bundle: .module)
+Twine.helloWorld.value(bundle: .module)
 ```
 
 ...Could be simplified to:
 
 ```swift
 "HELLO_WORLD".localized
+Twine.helloWorld.value
 ```
 
 ### Config File
 
 Specifying the config file with the `--config` or `-c` options will load
-arguments from that file, instead of the command-line. This is useful when
+arguments from a file, instead of the command-line. This is useful when
 using `xctwine` via the Xcode build plugin listed below. Config files must
 be named either `xctwine` _or_ `xctwine.json`, be json formatted, and contain
 the following fields:
 
 ```json
 {
-  "namespace": "YOUR_NAMESPACE_HERE",
+  "namespace": "string",
   "keyFormat": "none | camel | pascal",
-  "bundleExt": true | false
+  "moduleExt": true | false
 }
 ```
 
@@ -150,7 +144,7 @@ just add it to your target's build-tool plugin list under:
 
 By default, the plugin will execute with the following parameters:
 
-`$ xctwine <input> <output> --namespace=twine`
+`$ xctwine <input> <output> --namespace=Twine`
 
 To customize built-time arguments, add a configuration file
 (`xctwine` | `xctwine.json`) to your module's source files.
@@ -168,7 +162,7 @@ includes a small helper module containing some property-wrappers & macros.
 import Twine
 
 @Localized var literalString: String = "HELLO_WORLD"
-@Localized var extensionString: String = .twine.helloWorld
+@Localized var extensionString: String = Twine.helloWorld.key
 ```
 
 ## String+Localized
@@ -180,8 +174,8 @@ direct string extensions to make your life easier.
 ```swift
 import Twine
 
-var literalString = "HELLO_WORLD".localized()
-var extensionString = .twine.helloWorld.localized()
+let literalString = "HELLO_WORLD".localized(...)
+let extensionString = Twine.helloWorld.value(...)
 ```
 
 ## Contributing
