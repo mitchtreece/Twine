@@ -2,6 +2,6 @@
     "args": {
         "namespace": "config",
         "keyFormat": "camel",
-        "build-ext": true
+        "bundleExt": true
     }
 }

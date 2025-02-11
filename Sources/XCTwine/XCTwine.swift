@@ -39,6 +39,11 @@ import Rainbow
 @main
 struct XCTwine: ParsableCommand {
     
+    static let configuration = CommandConfiguration(
+        commandName: "xctwine",
+        abstract: "A Swift command-line tool for translating xcstring catalogue's into typed string extensions"
+    )
+    
     @Argument(help: "The input xcstring file")
     private var inputFile: File
     
@@ -72,20 +77,13 @@ struct XCTwine: ParsableCommand {
     @Flag(
         name: [
             .customShort("b"),
-            .customLong("bundle-ext")
+            .customLong("bundleExt")
         ],
         help: "Flag indicating if bundle extensions should be generated"
     )
     private var shouldGenerateBundleExtensions: Bool = false
     
     private var xcConfig: Config!
-    
-    static let configuration = CommandConfiguration(
-        commandName: "xctwine",
-        abstract: "A Swift command-line tool for translating xcstring catalogue's into typed string extensions"
-    )
-    
-    private static let configFileExtension: String = "xctwine"
     private static let stringsFileExtension: String = "xcstrings"
     private static let swiftFileExtension: String = "swift"
     
@@ -122,7 +120,7 @@ struct XCTwine: ParsableCommand {
         
         if let configFile {
             
-            if configFile.exists, configFile.extension == "xctwine" {
+            if configFile.exists, configFile.name == "xctwine" {
                 
                 log("⚙️ Using config file \(configFile.path.green)")
                 
@@ -148,7 +146,7 @@ struct XCTwine: ParsableCommand {
         
         log("   ﹂namespace: \(self.xcConfig.namespace?.green ?? "none".green)")
         log("   ﹂keyFormat: \(self.xcConfig.keyFormat.rawValue.green)")
-        log("   ﹂bundle-ext: \(self.xcConfig.generateBundleExtensions ? "true".green : "false".green)")
+        log("   ﹂bundleExt: \(self.xcConfig.generateBundleExtensions ? "true".green : "false".green)")
         
         guard let inputFileJson = File.json(self.inputFile) else {
             error(.inputFileJsonSerialization)
@@ -329,8 +327,10 @@ struct XCTwine: ParsableCommand {
                 if let comment = entry.comment {
                     string += "    /// \(comment)\n"
                 }
-                
-                string += "    static let \(entry.formattedKey): String = \"\(entry.key)\"\n\n"
+                                
+                string += "    static var \(entry.formattedKey): String {\n"
+                string += "        return \"\(entry.key)\"\n"
+                string += "    }\n\n"
                 
             }
             

@@ -30,7 +30,7 @@ struct Config: Decodable {
         return .init(
             namespace: args["namespace"] as? String ?? namespace,
             keyFormat: KeyFormat(rawValue: (args["keyFormat"] as? String) ?? keyFormat.rawValue) ?? keyFormat,
-            generateBundleExtensions: args["bundle-ext"] as? Bool ?? generateBundleExtensions
+            generateBundleExtensions: args["bundleExt"] as? Bool ?? generateBundleExtensions
         )
         
     }

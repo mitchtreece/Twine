@@ -17,8 +17,7 @@ extension XCTwinePlugin: XcodeBuildToolPlugin {
 
         let config = target
             .inputFiles
-            .filter { $0.path.extension == "xctwine" }
-            .first
+            .first { $0.path.lastComponent == "xctwine" }
         
         return try target
             .inputFiles
