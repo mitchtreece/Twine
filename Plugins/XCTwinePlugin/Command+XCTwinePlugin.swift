@@ -60,7 +60,8 @@ extension Command {
             executable: try context.tool(named: "xctwine").path,
             arguments: [
                 file.path,
-                context.outputPath(for: file)
+                context.outputPath(for: file),
+                module,
             ] + additionalArguments,
             inputFiles: [file.path],
             outputFiles: [context.outputPath(for: file)]
