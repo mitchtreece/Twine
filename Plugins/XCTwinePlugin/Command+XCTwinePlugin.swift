@@ -56,7 +56,7 @@ extension Command {
         }
         
         return .buildCommand(
-            displayName: "XCTwinePlugin: Generate string extensions for \(file.path.lastComponent)",
+            displayName: "XCTwine: Generate string extensions for \(file.path.lastComponent)",
             executable: try context.tool(named: "xctwine").path,
             arguments: [
                 file.path,
