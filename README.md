@@ -60,32 +60,34 @@ let messageValue: String = .helloWorld.value(...)
 ### Namespaces
 
 Specifying a namespace with the `--namespace` or `-n` options
-will generate string-keys in a wrapped type using a custom name,
-For example, the following command:
+will generate string-keys in a wrapped enum type accessible via,
+a static string helper function. For example, the following command:
 
 - `$ xctwine Localizable.xcstrings Strings.swift --namespace=loc`
 
 Will generate a `Strings.swift` file that looks something like...
 
 ```swift
-extension StringProtocol where Self == String {
+enum LocLocalizationKey: String, CaseIterable {
 
-    static var loc: Namespace { .init() }
+    case helloWorld = "HELLO_WORLD"
 
 }
 
-struct loc {
+extension StringProtocol where Self == String {
 
-    static let helloWorld: LocalizedStringEntry = .init(key: "HELLO_WORLD")
-    
+    static func loc(_ key: LocLocalizationKey) -> LocalizedStringEntry {
+        return .init(key: key.rawValue)
+    }
+
 }
 ```
 
 ...and then can be referenced directly in your project like:
 
 ```swift
-let messageKey: String = .loc.helloWorld.key
-let messageValue: String = .loc.helloWorld.value(...)
+let messageKey: String = .loc(.helloWorld).key
+let messageValue: String = .loc(.helloWorld).value(...)
 ```
 
 ### Formatting
@@ -114,6 +116,7 @@ multiple packages & modules. For example, with these extensions, the following..
 ```swift
 "HELLO_WORLD".localized(bundle: .module)
 .helloWorld.value(bundle: .module)
+.loc(.helloWorld).value(bundle: .module)
 ```
 
 ...Could be simplified to:
@@ -121,6 +124,7 @@ multiple packages & modules. For example, with these extensions, the following..
 ```swift
 "HELLO_WORLD".localized
 .helloWorld.value
+.loc(.helloWorld).value
 ```
 
 ### Public Access

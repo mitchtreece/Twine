@@ -8,16 +8,21 @@
 import Foundation
 
 /// Localized string key / value representation.
-public struct LocalizedStringEntry {
+public struct LocalizedStringEntry: ExpressibleByStringLiteral {
     
     /// The localized string key.
     public let key: String
-    
     
     /// Initializes a localized string.
     /// - parameter key: The localized string key.
     public init(key: String) {
         self.key = key
+    }
+    
+    /// Initializes a localized string from a literal.
+    /// - parameter stringLiteral: The string literal.
+    public init(stringLiteral value: StringLiteralType) {
+        self.init(key: value)
     }
     
     /// Gets a localized string value.
