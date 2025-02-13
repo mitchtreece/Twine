@@ -90,6 +90,14 @@ let messageKey: String = .loc(.helloWorld).key
 let messageValue: String = .loc(.helloWorld).value(...)
 ```
 
+In addition to the above, specifying the `--namespaceKey` or `-k` options
+will use an explicit name for the generated namespace's enum type. i.e.
+`LocLocalizationKey` -> `MyCustomKey`.
+
+### Namespace Keys
+
+Specify
+
 ### Formatting
 
 Specifying an output format with the `--format` or `-f` options

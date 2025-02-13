@@ -1,5 +1,6 @@
 {
-    "namespace": "twine",
+    "namespace": "test",
+    "namespaceKey": "TestNamespaceKey",
     "format": "camel",
     "moduleExt": true,
     "public": true

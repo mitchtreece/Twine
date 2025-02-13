@@ -31,14 +31,21 @@ struct XCTwine: ParsableCommand {
         help: "A configuration file to use instead of command-line arguments"
     )
     private var configFile: File?
-    
-    ////////////////////////////
-    
+        
     @Option(
         name: .shortAndLong,
         help: "An optional namespace to nest generated strings in"
     )
     private var namespace: String?
+    
+    @Option(
+        name: [
+            .customShort("k"),
+            .customLong("namespaceKey")
+        ],
+        help: "An optional namespace key to use when generating string cases"
+    )
+    private var namespaceKey: String?
     
     @Option(
         name: .shortAndLong,
@@ -93,6 +100,7 @@ struct XCTwine: ParsableCommand {
         self.xcConfig = Config.from(
             file: configFile,
             namespace: self.namespace,
+            namespaceKey: self.namespaceKey,
             format: self.format,
             moduleExt: self.moduleExt,
             publicAccess: self.isPublic
@@ -106,7 +114,13 @@ struct XCTwine: ParsableCommand {
         }
         
         if let namespace = self.xcConfig.namespace {
+            
             log("   ﹂namespace: \(namespace.green)")
+            
+            if let namespaceKey = self.xcConfig.namespaceKey {
+                log("   ﹂namespaceKey: \(namespaceKey.green)")
+            }
+            
         }
         
         log("   ﹂format: \(self.xcConfig.format.rawValue.green)")
@@ -275,8 +289,11 @@ struct XCTwine: ParsableCommand {
                 
         if let ns = self.xcConfig.namespace {
             
-            let nsKeyType = "\(ns.capitalized)LocalizationKey"
-
+            let nsKeyType = (
+                self.xcConfig.namespaceKey ??
+                "\(ns.capitalized)LocalizationKey"
+            )
+            
             string += """
             \(accessString)extension StringProtocol where Self == String /* Twine */ {
             

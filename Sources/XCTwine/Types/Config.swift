@@ -8,12 +8,14 @@
 struct Config: Decodable {
     
     let namespace: String?
+    let namespaceKey: String?
     let format: KeyFormat
     let moduleExt: Bool
     let publicAccess: Bool
         
     static func from(file: File?,
                      namespace: String?,
+                     namespaceKey: String?,
                      format: KeyFormat,
                      moduleExt: Bool,
                      publicAccess: Bool) -> Self? {
@@ -25,6 +27,7 @@ struct Config: Decodable {
             
             return .init(
                 namespace: namespace,
+                namespaceKey: namespaceKey,
                 format: format,
                 moduleExt: moduleExt,
                 publicAccess: publicAccess
@@ -34,6 +37,7 @@ struct Config: Decodable {
         
         return .init(
             namespace: json["namespace"] as? String ?? namespace,
+            namespaceKey: json["namespaceKey"] as? String ?? namespaceKey,
             format: KeyFormat(rawValue: (json["format"] as? String) ?? format.rawValue) ?? format,
             moduleExt: json["moduleExt"] as? Bool ?? moduleExt,
             publicAccess: json["public"] as? Bool ?? publicAccess
