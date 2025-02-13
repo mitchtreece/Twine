@@ -1,6 +1,6 @@
 {
-    "namespace": "Str",
-    "category": "Test",
+    "namespace": "twine",
     "format": "camel",
-    "moduleExt": true
+    "moduleExt": true,
+    "public": true
 }

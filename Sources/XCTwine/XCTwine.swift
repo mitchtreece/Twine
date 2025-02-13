@@ -9,6 +9,28 @@ import Foundation
 import ArgumentParser
 import Rainbow
 
+public extension StringProtocol where Self == String {
+    
+    static var myString: String { "MY_STRING" }
+    
+}
+
+// OR
+
+struct Namespace {
+    
+    internal init() {}
+    
+    let myNamespaceString: String = "MY_NS_STRING"
+    
+}
+
+extension StringProtocol where Self == String {
+    
+    static var Namespace: Namespace { .init() }
+    
+}
+
 @main
 struct XCTwine: ParsableCommand {
     
@@ -36,18 +58,9 @@ struct XCTwine: ParsableCommand {
     
     @Option(
         name: .shortAndLong,
-        help: "The namespace to nest generated strings in"
+        help: "An optional namespace to nest generated strings in"
     )
-    private var namespace: String = "Twine"
-    
-    @Option(
-        name: [
-            .customShort("b"),
-            .customLong("category")
-        ],
-        help: "An optional namespace category"
-    )
-    private var category: String?
+    private var namespace: String?
     
     @Option(
         name: .shortAndLong,
@@ -61,17 +74,26 @@ struct XCTwine: ParsableCommand {
     )
     private var moduleExt: Bool = false
     
+    @Flag(
+        name: [
+            .customShort("p"),
+            .customLong("public")
+        ],
+        help: "Flag indicating if module extensions should be publically accessible"
+    )
+    private var isPublic: Bool = false
+    
     private var xcConfig: Config!
     private static let stringsFileExtension: String = "xcstrings"
     private static let swiftFileExtension: String = "swift"
     
     mutating func run() throws {
-                
+        
         guard self.inputFile.exists else {
             error(.inputFileNotFound)
             return
         }
-        
+                
         guard let inputExtension = self.inputFile.extension,
               inputExtension == Self.stringsFileExtension else {
             
@@ -93,9 +115,9 @@ struct XCTwine: ParsableCommand {
         self.xcConfig = Config.from(
             file: configFile,
             namespace: self.namespace,
-            category: self.category,
             format: self.format,
-            moduleExt: self.moduleExt
+            moduleExt: self.moduleExt,
+            publicAccess: self.isPublic
         )
         
         if let configFile {
@@ -105,15 +127,14 @@ struct XCTwine: ParsableCommand {
             log("⚙️ Using config arguments")
         }
         
-        log("   ﹂namespace: \(self.xcConfig.namespace.green)")
-        
-        if let category = self.xcConfig.category {
-            log("   ﹂category: \(category.green)")
+        if let namespace = self.xcConfig.namespace {
+            log("   ﹂namespace: \(namespace.green)")
         }
         
         log("   ﹂format: \(self.xcConfig.format.rawValue.green)")
         log("   ﹂moduleExt: \(self.xcConfig.moduleExt ? "true".green : "false".green)")
-        
+        log("   ﹂public: \(self.xcConfig.publicAccess ? "true".green : "false".green)")
+
         guard let inputFileJson = File.json(self.inputFile) else {
             error(.inputFileJsonSerialization)
             return
@@ -213,6 +234,8 @@ struct XCTwine: ParsableCommand {
         let dateString = formatter
             .string(from: Date())
         
+        let accessString = self.xcConfig.publicAccess ? "public " : ""
+        
         var string = """
         //
         // \(self.outputFile.name)
@@ -232,7 +255,7 @@ struct XCTwine: ParsableCommand {
             string += """
             // MARK: Module Extensions
             
-            extension LocalizedStringEntry {
+            \(accessString)extension LocalizedStringEntry {
             
                 /// Gets a localized string value in the current module.
                 var value: String {
@@ -241,7 +264,7 @@ struct XCTwine: ParsableCommand {
             
             }
             
-            extension Localized {
+            \(accessString)extension Localized {
             
                 /// Initializes the property-wrapper with a localized
                 /// string key in the current module.
@@ -256,7 +279,7 @@ struct XCTwine: ParsableCommand {
             
             }
             
-            extension String {
+            \(accessString)extension String {
             
                 /// Gets a localized string value in the current module.
                 var localized: String {
@@ -271,33 +294,25 @@ struct XCTwine: ParsableCommand {
         }
         
         string += "// MARK: Strings\n\n"
-        
-        string += "struct \(self.xcConfig.namespace) /* \(self.inputFile.name) */ {\n\n"
-        string += "    private init() {}\n\n"
-        
-        if let category = self.xcConfig.category {
+                
+        if let namespace = self.xcConfig.namespace {
             
-            string += "    struct \(category) {\n\n"
-            string += "        private init() {}\n\n"
+            let namespaceId = String(UUID().uuidString.prefix(4))
+            let namespaceType = "Twine_\(namespace)_\(namespaceId)"
             
-            for entry in entries {
-
-                if let comment = entry.comment {
-                    string += "        /// \"\(entry.key)\" - \(comment)\n"
-                }
-                else {
-                    string += "        /// \"\(entry.key)\"\n"
-                }
-
-                string += "        static let \(entry.formattedKey): LocalizedStringEntry = .init(key: \"\(entry.key)\")\n\n"
-
-            }
+            string += "\(accessString)extension StringProtocol where Self == String /* Twine */ {\n\n"
+            string += "    /// Localized string namespace generated by\n"
+            string += "    /// [Twine](https://github.com/mitchtreece/Twine).\n"
+            string += "    static var \(namespace): \(namespaceType) { .init() }\n\n"
+            string += "}"
             
-            string += "    }\n\n"
+            string += "\n\n"
             
-        }
-        else {
-            
+            string += "/// Localized string namespace type generated by\n"
+            string += "/// [Twine](https://github.com/mitchtreece/Twine).\n"
+            string += "\(accessString)struct \(namespaceType) /* \(self.inputFile.name) */ {\n\n"
+            string += "    fileprivate init() {}\n\n"
+         
             for entry in entries {
 
                 if let comment = entry.comment {
@@ -307,13 +322,33 @@ struct XCTwine: ParsableCommand {
                     string += "    /// \"\(entry.key)\"\n"
                 }
 
-                string += "    static let \(entry.formattedKey): LocalizedStringEntry = .init(key: \"\(entry.key)\")\n\n"
+                string += "    \(accessString)let \(entry.formattedKey): LocalizedStringEntry = .init(key: \"\(entry.key)\")\n\n"
 
             }
             
+            string += "}\n"
+            
         }
-        
-        string += "}\n"
+        else {
+            
+            string += "\(accessString)extension StringProtocol where Self == String /* \(self.inputFile.name) */ {\n\n"
+            
+            for entry in entries {
+                
+                if let comment = entry.comment {
+                    string += "    /// \"\(entry.key)\" - \(comment)\n"
+                }
+                else {
+                    string += "    /// \"\(entry.key)\"\n"
+                }
+                
+                string += "    static var \(entry.formattedKey): LocalizedStringEntry { .init(key: \"\(entry.key)\") }\n\n"
+                
+            }
+            
+            string += "}\n"
+            
+        }
         
         return string
         

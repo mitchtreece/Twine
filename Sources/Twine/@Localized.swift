@@ -50,7 +50,7 @@ public struct Localized {
     
     private let _valuePublisher = PassthroughSubject<String, Never>()
     
-    /// Initializes the property-wrapper with a localization string-key.
+    /// Initializes the property-wrapper with a localized string key.
     /// - parameter wrappedValue: The localized string key.
     /// - parameter fallback: A fallback value to use if a localized value cannot be found.
     /// - parameter locale: The locale to use when localizing interpolated values.
@@ -70,6 +70,28 @@ public struct Localized {
         self.bundle = bundle
         
         publish()
+        
+    }
+    
+    /// Initializes the property-wrapper with a localized string entry.
+    /// - parameter wrappedValue: The localized string entry.
+    /// - parameter fallback: A fallback value to use if a localized value cannot be found.
+    /// - parameter locale: The locale to use when localizing interpolated values.
+    /// - parameter table: The bundle's string table to search.
+    /// - parameter bundle: The bundle containing localized string assets.
+    public init(wrappedValue: LocalizedStringEntry,
+                fallback: String? = nil,
+                locale: Locale = .current,
+                table: String? = nil,
+                bundle: Bundle? = nil) {
+        
+        self.init(
+            wrappedValue: wrappedValue.key,
+            fallback: fallback,
+            locale: locale,
+            table: table,
+            bundle: bundle
+        )
         
     }
     

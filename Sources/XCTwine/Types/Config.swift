@@ -7,16 +7,16 @@
 
 struct Config: Decodable {
     
-    let namespace: String
-    let category: String?
+    let namespace: String?
     let format: KeyFormat
     let moduleExt: Bool
+    let publicAccess: Bool
         
     static func from(file: File?,
-                     namespace: String,
-                     category: String?,
+                     namespace: String?,
                      format: KeyFormat,
-                     moduleExt: Bool) -> Self? {
+                     moduleExt: Bool,
+                     publicAccess: Bool) -> Self? {
         
         guard let file,
               let json = File.json(file),
@@ -25,18 +25,18 @@ struct Config: Decodable {
             
             return .init(
                 namespace: namespace,
-                category: category,
                 format: format,
-                moduleExt: moduleExt
+                moduleExt: moduleExt,
+                publicAccess: publicAccess
             )
             
         }
         
         return .init(
             namespace: json["namespace"] as? String ?? namespace,
-            category: json["category"] as? String ?? category,
             format: KeyFormat(rawValue: (json["format"] as? String) ?? format.rawValue) ?? format,
-            moduleExt: json["moduleExt"] as? Bool ?? moduleExt
+            moduleExt: json["moduleExt"] as? Bool ?? moduleExt,
+            publicAccess: json["public"] as? Bool ?? publicAccess
         )
         
     }

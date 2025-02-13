@@ -43,9 +43,9 @@ At its simplest, it can be used with only input & output file arguments:
 The generated `Strings.swift` file will look something like...
 
 ```swift
-public struct Twine {
+extension StringProtocol where Self == String {
 
-    public static let helloWorld: LocalizedStringEntry = .init(key: "HELLO_WORLD")
+    static var helloWorld: LocalizedStringEntry { .init(key: "HELLO_WORLD") }
 
 }
 ```
@@ -53,25 +53,30 @@ public struct Twine {
 ...and can then be referenced directly in your project
 
 ```swift
-let messageKey: String = Twine.helloWorld.key
-let messageValue: String = Twine.helloWorld.value(...)
+let messageKey: String = .helloWorld.key
+let messageValue: String = .helloWorld.value(...)
 ```
 
 ### Namespaces
 
 Specifying a namespace with the `--namespace` or `-n` options
 will generate string-keys in a wrapped type using a custom name,
-instead of using the default `Twine` namespace. For example, the
-following command:
+For example, the following command:
 
-- `$ xctwine Localizable.xcstrings Strings.swift --namespace=Loc`
+- `$ xctwine Localizable.xcstrings Strings.swift --namespace=loc`
 
 Will generate a `Strings.swift` file that looks something like...
 
 ```swift
-public struct Loc {
+extension StringProtocol where Self == String {
 
-    public static let helloWorld: LocalizedStringEntry = .init(key: "HELLO_WORLD")
+    static var loc: Namespace { .init() }
+
+}
+
+struct loc {
+
+    static let helloWorld: LocalizedStringEntry = .init(key: "HELLO_WORLD")
     
 }
 ```
@@ -79,8 +84,8 @@ public struct Loc {
 ...and then can be referenced directly in your project like:
 
 ```swift
-let messageKey: String = Loc.helloWorld.key
-let messageValue: String = Loc.helloWorld.value(...)
+let messageKey: String = .loc.helloWorld.key
+let messageValue: String = .loc.helloWorld.value(...)
 ```
 
 ### Formatting
@@ -108,14 +113,28 @@ multiple packages & modules. For example, with these extensions, the following..
 
 ```swift
 "HELLO_WORLD".localized(bundle: .module)
-Twine.helloWorld.value(bundle: .module)
+.helloWorld.value(bundle: .module)
 ```
 
 ...Could be simplified to:
 
 ```swift
 "HELLO_WORLD".localized
-Twine.helloWorld.value
+.helloWorld.value
+```
+
+### Public Access
+
+By default, generated types have an `internal` (unspecified) access-level.
+However, specifying the `--public` or `-p` options will generate `public`
+types. i.e.
+
+```swift
+public extension StringProtocol where Self == String {
+
+    static var helloWorld: LocalizedStringEntry { .init(key: "HELLO_WORLD") }
+
+}
 ```
 
 ### Config File
@@ -129,8 +148,9 @@ the following fields:
 ```json
 {
   "namespace": "string",
-  "keyFormat": "none | camel | pascal",
-  "moduleExt": true | false
+  "format": "none | camel | pascal",
+  "moduleExt": true | false,
+  "public": true | false
 }
 ```
 
@@ -141,10 +161,6 @@ for easy integration with your pipeline. After installation,
 just add it to your target's build-tool plugin list under:
 
 - `Project → Targets → Build Phases → Run Build-Tool Plugins`
-
-By default, the plugin will execute with the following parameters:
-
-`$ xctwine <input> <output> --namespace=Twine`
 
 To customize built-time arguments, add a configuration file
 (`xctwine` | `xctwine.json`) to your module's source files.
@@ -162,7 +178,7 @@ includes a small helper module containing some property-wrappers & macros.
 import Twine
 
 @Localized var literalString: String = "HELLO_WORLD"
-@Localized var extensionString: String = Twine.helloWorld.key
+@Localized var twineString: String = .helloWorld
 ```
 
 ## String+Localized
@@ -174,8 +190,8 @@ direct string extensions to make your life easier.
 ```swift
 import Twine
 
-let literalString = "HELLO_WORLD".localized(...)
-let extensionString = Twine.helloWorld.value(...)
+let literalString: String = "HELLO_WORLD".localized(...)
+let twineString: String = .helloWorld.value(...)
 ```
 
 ## Contributing
