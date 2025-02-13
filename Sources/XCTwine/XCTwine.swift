@@ -240,7 +240,7 @@ struct XCTwine: ParsableCommand {
             string += """
             // MARK: Module Extensions
             
-            fileprivtate class BundleFinder {}
+            fileprivate class BundleFinder {}
             fileprivate let currentBundle = Bundle(for: BundleFinder.self)
             
             public extension LocalizedStringEntry {
