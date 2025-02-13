@@ -223,6 +223,7 @@ struct XCTwine: ParsableCommand {
         // https://github.com/mitchtreece/XCTwine
         //
         
+        import Foundation
         import Twine
         
         
