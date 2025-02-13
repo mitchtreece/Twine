@@ -41,28 +41,27 @@ extension PluginContext: PluginContextProtocol {}
 extension Command {
     
     static func xctwine(file: File,
-                        bundle: String,
+                        bundle: String?,
                         config: File?,
                         using context: PluginContextProtocol) throws -> Command {
         
-        var additionalArguments = [any CustomStringConvertible]()
+        var args: [any CustomStringConvertible] = [
+            file.path,
+            context.outputPath(for: file)
+        ]
+        
+        if let bundle {
+            args.append(bundle)
+        }
         
         if let config {
-            
-            additionalArguments.append(
-                "--config=\(config.path)"
-            )
-            
+            args.append("--config=\(config.path)")
         }
         
         return .buildCommand(
             displayName: "XCTwine: Generate string extensions for \(file.path.lastComponent)",
             executable: try context.tool(named: "xctwine").path,
-            arguments: [
-                file.path,
-                context.outputPath(for: file),
-                bundle,
-            ] + additionalArguments,
+            arguments: args,
             inputFiles: [file.path],
             outputFiles: [context.outputPath(for: file)]
         )

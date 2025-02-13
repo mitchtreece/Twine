@@ -241,16 +241,22 @@ struct XCTwine: ParsableCommand {
             string += "public typealias \(alias) = Twine\n\n"
             
         }
-                
+        
         if self.xcConfig.moduleExt {
-            
-//            fileprivate class MainBundleFinder {}
-//            fileprivate let mainBundle = Bundle(for: MainBundleFinder.self)
-            
+        
             string += "// MARK: Module Extensions\n\n"
 
             if let bundleName {
-                string += "fileprivate let bundle: Bundle = .init(identifier: \"\(bundleName)\")!\n\n"
+                
+                string += """
+                fileprivate class MainBundleFinder {}
+                fileprivate let mainBundle = Bundle(for: MainBundleFinder.self)
+                fileprivate let bundleUrl: URL = mainBundle.bundleURL.appending(component: \"\(bundleName)\")
+                fileprivate let bundle: Bundle = .init(url: bundleUrl)!
+                """
+                
+                string += "\n\n"
+                
             }
             else {
                 string += "fileprivate let bundle: Bundle = .module\n\n"
