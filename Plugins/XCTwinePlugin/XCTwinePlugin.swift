@@ -29,14 +29,14 @@ struct XCTwinePlugin: BuildToolPlugin {
                 )
                 
             }
-        
+                
         return try sourceModule
             .sourceFiles(withSuffix: "xcstrings")
             .map { file in
                 
                 try Command.xctwine(
                     file: file,
-                    module: "Module - \(sourceModule.moduleName) | \(sourceModule.name) | \(sourceModule.id)",
+                    module: "Module - \(sourceModule.sourceModule?.moduleName ?? "No Source") | \(sourceModule.moduleName) | \(sourceModule.name) | \(sourceModule.id)",
                     config: config,
                     using: context
                 )
