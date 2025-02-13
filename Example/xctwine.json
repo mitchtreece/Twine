@@ -1,5 +1,5 @@
 {
-    "alias": "Str",
+    "namespace": "Str",
     "category": "Test",
     "format": "camel",
     "moduleExt": true

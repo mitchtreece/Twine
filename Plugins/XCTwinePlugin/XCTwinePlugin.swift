@@ -29,18 +29,13 @@ struct XCTwinePlugin: BuildToolPlugin {
                 )
                 
             }
-                
-        let packageName = context.package.displayName
-        let moduleName = sourceModule.moduleName
-        let bundleName = "\(packageName)_\(moduleName).bundle"
-                        
+        
         return try sourceModule
             .sourceFiles(withSuffix: "xcstrings")
             .map { file in
                 
                 try Command.xctwine(
                     file: file,
-                    bundle: bundleName,
                     config: config,
                     using: context
                 )

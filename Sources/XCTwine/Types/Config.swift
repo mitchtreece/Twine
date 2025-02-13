@@ -7,13 +7,13 @@
 
 struct Config: Decodable {
     
-    let alias: String?
+    let namespace: String
     let category: String?
     let format: KeyFormat
     let moduleExt: Bool
         
     static func from(file: File?,
-                     alias: String?,
+                     namespace: String,
                      category: String?,
                      format: KeyFormat,
                      moduleExt: Bool) -> Self? {
@@ -24,7 +24,7 @@ struct Config: Decodable {
               (file.name == "xctwine" || file.name == "xctwine.json") else {
             
             return .init(
-                alias: alias,
+                namespace: namespace,
                 category: category,
                 format: format,
                 moduleExt: moduleExt
@@ -33,7 +33,7 @@ struct Config: Decodable {
         }
         
         return .init(
-            alias: json["alias"] as? String ?? alias,
+            namespace: json["namespace"] as? String ?? namespace,
             category: json["category"] as? String ?? category,
             format: KeyFormat(rawValue: (json["format"] as? String) ?? format.rawValue) ?? format,
             moduleExt: json["moduleExt"] as? Bool ?? moduleExt

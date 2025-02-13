@@ -9,9 +9,6 @@ import Foundation
 import ArgumentParser
 import Rainbow
 
-// BaseApp/AppFeatures_AppFeature_Debug.bundle
-// appfeatures.AppFeature-Debug.resources
-
 @main
 struct XCTwine: ParsableCommand {
     
@@ -26,9 +23,6 @@ struct XCTwine: ParsableCommand {
     @Argument(help: "The generated output strings file")
     private var outputFile: File
     
-    @Argument
-    private var bundleName: String?
-    
     @Option(
         name: [
             .customShort("c"),
@@ -42,16 +36,16 @@ struct XCTwine: ParsableCommand {
     
     @Option(
         name: .shortAndLong,
-        help: "An optional namespace alias to generate"
+        help: "The namespace to nest generated strings in"
     )
-    private var alias: String?
+    private var namespace: String = "Twine"
     
     @Option(
         name: [
             .customShort("b"),
             .customLong("category")
         ],
-        help: "An optional namespace category to generate"
+        help: "An optional namespace category"
     )
     private var category: String?
     
@@ -98,7 +92,7 @@ struct XCTwine: ParsableCommand {
         
         self.xcConfig = Config.from(
             file: configFile,
-            alias: self.alias,
+            namespace: self.namespace,
             category: self.category,
             format: self.format,
             moduleExt: self.moduleExt
@@ -111,9 +105,7 @@ struct XCTwine: ParsableCommand {
             log("⚙️ Using config arguments")
         }
         
-        if let alias = self.xcConfig.alias {
-            log("   ﹂alias: \(alias.green)")
-        }
+        log("   ﹂namespace: \(self.xcConfig.namespace.green)")
         
         if let category = self.xcConfig.category {
             log("   ﹂category: \(category.green)")
@@ -235,44 +227,21 @@ struct XCTwine: ParsableCommand {
         
         """
         
-        if let alias = self.xcConfig.alias {
-            
-            string += "// MARK: Alias\n\n"
-            string += "public typealias \(alias) = Twine\n\n"
-            
-        }
-        
         if self.xcConfig.moduleExt {
-        
-            string += "// MARK: Module Extensions\n\n"
-
-            if let bundleName {
-                
-                string += """
-                fileprivate class MainBundleFinder {}
-                fileprivate let mainBundle = Bundle(for: MainBundleFinder.self)
-                fileprivate let bundleUrl: URL = mainBundle.bundleURL.appending(component: \"\(bundleName)\")
-                fileprivate let bundle: Bundle = .init(url: bundleUrl)!
-                """
-                
-                string += "\n\n"
-                
-            }
-            else {
-                string += "fileprivate let bundle: Bundle = .module\n\n"
-            }
             
             string += """
-            public extension LocalizedStringEntry {
+            // MARK: Module Extensions
+            
+            extension LocalizedStringEntry {
             
                 /// Gets a localized string value in the current module.
                 var value: String {
-                    self.value(bundle: bundle)
+                    self.value(bundle: .module)
                 }
             
             }
             
-            public extension Localized {
+            extension Localized {
             
                 /// Initializes the property-wrapper with a localized
                 /// string key in the current module.
@@ -280,34 +249,36 @@ struct XCTwine: ParsableCommand {
                     
                     self.init(
                         wrappedValue: wrappedValue,
-                        bundle: bundle
+                        bundle: .module
                     )
             
                 }
             
             }
             
-            public extension String {
+            extension String {
             
                 /// Gets a localized string value in the current module.
                 var localized: String {
-                    self.localized(bundle: bundle)
+                    self.localized(bundle: .module)
                 }
             
             }
-            
-
             """
+            
+            string += "\n\n"
             
         }
         
         string += "// MARK: Strings\n\n"
         
+        string += "struct \(self.xcConfig.namespace) /* \(self.inputFile.name) */ {\n\n"
+        string += "    private init() {}\n\n"
+        
         if let category = self.xcConfig.category {
             
-            string += "public extension Twine /* \(self.inputFile.name) */ {\n\n"
-            string += "    /// \(category) strings\n"
             string += "    struct \(category) {\n\n"
+            string += "        private init() {}\n\n"
             
             for entry in entries {
 
@@ -318,17 +289,14 @@ struct XCTwine: ParsableCommand {
                     string += "        /// \"\(entry.key)\"\n"
                 }
 
-                string += "        public static let \(entry.formattedKey): LocalizedStringEntry = .init(key: \"\(entry.key)\")\n\n"
+                string += "        static let \(entry.formattedKey): LocalizedStringEntry = .init(key: \"\(entry.key)\")\n\n"
 
             }
-
+            
             string += "    }\n\n"
-            string += "}\n"
             
         }
         else {
-            
-            string += "public extension Twine /* \(self.inputFile.name) */ {\n\n"
             
             for entry in entries {
 
@@ -342,10 +310,10 @@ struct XCTwine: ParsableCommand {
                 string += "    static let \(entry.formattedKey): LocalizedStringEntry = .init(key: \"\(entry.key)\")\n\n"
 
             }
-
-            string += "}\n"
             
         }
+        
+        string += "}\n"
         
         return string
         

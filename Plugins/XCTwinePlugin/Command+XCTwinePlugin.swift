@@ -41,7 +41,6 @@ extension PluginContext: PluginContextProtocol {}
 extension Command {
     
     static func xctwine(file: File,
-                        bundle: String?,
                         config: File?,
                         using context: PluginContextProtocol) throws -> Command {
         
@@ -49,10 +48,6 @@ extension Command {
             file.path,
             context.outputPath(for: file)
         ]
-        
-        if let bundle {
-            args.append(bundle)
-        }
         
         if let config {
             args.append("--config=\(config.path)")

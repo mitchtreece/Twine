@@ -33,7 +33,6 @@ extension XCTwinePlugin: XcodeBuildToolPlugin {
                 
                 try .xctwine(
                     file: file,
-                    bundle: nil,
                     config: config,
                     using: context
                 )
