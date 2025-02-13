@@ -18,7 +18,7 @@ struct XCTwinePlugin: BuildToolPlugin {
             Diagnostics.warning("XCTwinePlugin does not support non-source targets")
             return []
         }
-        
+                        
         let config = sourceModule
             .sourceFiles
             .first { file in
@@ -36,6 +36,7 @@ struct XCTwinePlugin: BuildToolPlugin {
                 
                 try Command.xctwine(
                     file: file,
+                    module: "Module - \(sourceModule.moduleName) | \(sourceModule.name) | \(sourceModule.id)",
                     config: config,
                     using: context
                 )

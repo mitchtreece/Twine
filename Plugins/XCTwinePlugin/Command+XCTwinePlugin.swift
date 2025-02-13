@@ -41,6 +41,7 @@ extension PluginContext: PluginContextProtocol {}
 extension Command {
     
     static func xctwine(file: File,
+                        module: String,
                         config: File?,
                         using context: PluginContextProtocol) throws -> Command {
         

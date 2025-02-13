@@ -33,6 +33,7 @@ extension XCTwinePlugin: XcodeBuildToolPlugin {
                 
                 try .xctwine(
                     file: file,
+                    module: "Target - \(target.displayName) | \(target.id) | \(target.product?.name ?? "None")",
                     config: config,
                     using: context
                 )
