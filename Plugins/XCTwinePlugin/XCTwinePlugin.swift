@@ -29,6 +29,13 @@ struct XCTwinePlugin: BuildToolPlugin {
                 )
                 
             }
+        
+        // BaseApp/AppFeatures_AppFeature_Debug.bundle
+        // appfeatures.AppFeature-Debug.resources
+        
+        let packageName = context.package.displayName.lowercased()
+        let moduleName = sourceModule.moduleName.replacing("_", with: "-")
+        let bundleId = "\(packageName).\(moduleName).resources"
                         
         return try sourceModule
             .sourceFiles(withSuffix: "xcstrings")
@@ -36,7 +43,7 @@ struct XCTwinePlugin: BuildToolPlugin {
                 
                 try Command.xctwine(
                     file: file,
-                    module: "Module - \(context.package.displayName) | \(sourceModule.moduleName) | \(sourceModule.name) | \(sourceModule.id)",
+                    bundle: bundleId,
                     config: config,
                     using: context
                 )
