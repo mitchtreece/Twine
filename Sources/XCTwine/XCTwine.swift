@@ -240,11 +240,14 @@ struct XCTwine: ParsableCommand {
             string += """
             // MARK: Module Extensions
             
+            fileprivtate class BundleFinder {}
+            fileprivate let currentBundle = Bundle(for: BundleFinder.self)
+            
             public extension LocalizedStringEntry {
             
                 /// Gets a localized string value in the current module.
                 var value: String {
-                    self.value(bundle: .module)
+                    self.value(bundle: currentBundle)
                 }
             
             }
@@ -257,7 +260,7 @@ struct XCTwine: ParsableCommand {
                     
                     self.init(
                         wrappedValue: wrappedValue,
-                        bundle: .module
+                        bundle: currentBundle
                     )
             
                 }
@@ -268,7 +271,7 @@ struct XCTwine: ParsableCommand {
             
                 /// Gets a localized string value in the current module.
                 var localized: String {
-                    self.localized(bundle: .module)
+                    self.localized(bundle: currentBundle)
                 }
             
             }
@@ -283,6 +286,7 @@ struct XCTwine: ParsableCommand {
         if let category = self.xcConfig.category {
             
             string += "public extension Twine /* \(self.inputFile.name) */ {\n\n"
+            string += "    /// \(category) strings\n"
             string += "    struct \(category) {\n\n"
             
             for entry in entries {
