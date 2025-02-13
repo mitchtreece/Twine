@@ -9,25 +9,6 @@ import Foundation
 import ArgumentParser
 import Rainbow
 
-// Twine.myString
-// Twine.Category.myString
-
-// typealias S = Twine
-// S.myString
-// S.Catrgory.myString
-
-public struct Test {}
-
-public extension Test {
-    
-    struct Another {
-        
-        public static let hello: String = ""
-        
-    }
-    
-}
-
 @main
 struct XCTwine: ParsableCommand {
     
