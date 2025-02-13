@@ -250,7 +250,7 @@ struct XCTwine: ParsableCommand {
             string += "// MARK: Module Extensions\n\n"
 
             if let bundleName {
-                string += "fileprivate let bundle: Bundle = .init(identifier: \"\(bundleName)\")\n\n"
+                string += "fileprivate let bundle: Bundle = .init(identifier: \"\(bundleName)\")!\n\n"
             }
             else {
                 string += "fileprivate let bundle: Bundle = .module\n\n"
