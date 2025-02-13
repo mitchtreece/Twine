@@ -22,9 +22,11 @@ private extension PluginContextProtocol {
 
     func outputPath(for file: File) -> Path {
         
+        let fileId = String(UUID().uuidString.prefix(4))
+        
         return self.pluginWorkDirectory
-            .appending(subpath: "XCTwinePlugin")
-            .appending("\(file.path.stem)+Twine.swift")
+            .appending(subpath: "XCTwine")
+            .appending("\(file.path.stem)_\(fileId)+XCTwine.swift")
         
     }
     

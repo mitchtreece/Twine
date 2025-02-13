@@ -1,5 +1,6 @@
 {
-    "namespace": "config",
-    "keyFormat": "camel",
+    "alias": "Str",
+    "category": "Test",
+    "format": "camel",
     "moduleExt": true
 }

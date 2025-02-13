@@ -9,6 +9,25 @@ import Foundation
 import ArgumentParser
 import Rainbow
 
+// Twine.myString
+// Twine.Category.myString
+
+// typealias S = Twine
+// S.myString
+// S.Catrgory.myString
+
+public struct Test {}
+
+public extension Test {
+    
+    struct Another {
+        
+        public static let hello: String = ""
+        
+    }
+    
+}
+
 @main
 struct XCTwine: ParsableCommand {
     
@@ -17,10 +36,10 @@ struct XCTwine: ParsableCommand {
         abstract: "A Swift command-line tool for translating xcstring catalogue's into typed string extensions"
     )
     
-    @Argument(help: "The input xcstring file")
+    @Argument(help: "The input xcstrings file")
     private var inputFile: File
     
-    @Argument(help: "The output string-extension file")
+    @Argument(help: "The generated output strings file")
     private var outputFile: File
     
     @Option(
@@ -28,24 +47,32 @@ struct XCTwine: ParsableCommand {
             .customShort("c"),
             .customLong("config")
         ],
-        help: "Optional configuration file to use"
+        help: "A configuration file to use instead of command-line arguments"
     )
     private var configFile: File?
     
+    ////////////////////////////
+    
     @Option(
         name: .shortAndLong,
-        help: "The output string-extension namespace"
+        help: "An optional namespace alias to generate"
     )
-    private var namespace: String = "Twine"
+    private var alias: String?
     
     @Option(
         name: [
-            .customShort("f"),
-            .customLong("format")
+            .customShort("b"),
+            .customLong("category")
         ],
-        help: "Output localization key format [none, camel, pascal]"
+        help: "An optional namespace category to generate"
     )
-    private var keyFormat: KeyFormat = .camel
+    private var category: String?
+    
+    @Option(
+        name: .shortAndLong,
+        help: "The output key format [none, camel, pascal]"
+    )
+    private var format: KeyFormat = .camel
     
     @Flag(
         name: .shortAndLong,
@@ -84,8 +111,9 @@ struct XCTwine: ParsableCommand {
         
         self.xcConfig = Config.from(
             file: configFile,
-            namespace: self.namespace,
-            keyFormat: self.keyFormat,
+            alias: self.alias,
+            category: self.category,
+            format: self.format,
             moduleExt: self.moduleExt
         )
         
@@ -96,8 +124,15 @@ struct XCTwine: ParsableCommand {
             log("⚙️ Using config arguments")
         }
         
-        log("   ﹂namespace: \(self.xcConfig.namespace.green)")
-        log("   ﹂keyFormat: \(self.xcConfig.keyFormat.rawValue.green)")
+        if let alias = self.xcConfig.alias {
+            log("   ﹂alias: \(alias.green)")
+        }
+        
+        if let category = self.xcConfig.category {
+            log("   ﹂category: \(category.green)")
+        }
+        
+        log("   ﹂format: \(self.xcConfig.format.rawValue.green)")
         log("   ﹂moduleExt: \(self.xcConfig.moduleExt ? "true".green : "false".green)")
         
         guard let inputFileJson = File.json(self.inputFile) else {
@@ -120,12 +155,12 @@ struct XCTwine: ParsableCommand {
             
                 let existingKey = StringEntry.rawFormatKey(
                     entry.key,
-                    format: self.xcConfig.keyFormat
+                    format: self.xcConfig.format
                 )
                 
                 let proposedKey = StringEntry.rawFormatKey(
                     key,
-                    format: self.xcConfig.keyFormat
+                    format: self.xcConfig.format
                 )
                                 
                 return proposedKey == existingKey
@@ -135,7 +170,7 @@ struct XCTwine: ParsableCommand {
                         
             entries.append(StringEntry(
                 key: key,
-                format: self.xcConfig.keyFormat,
+                format: self.xcConfig.format,
                 comment: payload?["comment"] as? String,
                 duplicateIndex: (duplicateKeyCount > 0) ? UInt(duplicateKeyCount) : nil
             ))
@@ -212,10 +247,19 @@ struct XCTwine: ParsableCommand {
         
         """
         
+        if let alias = self.xcConfig.alias {
+            
+            string += "// MARK: Alias\n\n"
+            string += "public typealias \(alias) = Twine\n\n"
+            
+        }
+        
         if self.xcConfig.moduleExt {
             
             string += """
-            public extension LocalizedStringEntry /* Module */ {
+            // MARK: Module Extensions
+            
+            public extension LocalizedStringEntry {
             
                 /// Gets a localized string value in the current module.
                 var value: String {
@@ -224,7 +268,7 @@ struct XCTwine: ParsableCommand {
             
             }
             
-            public extension Localized /* Module */ {
+            public extension Localized {
             
                 /// Initializes the property-wrapper with a localized
                 /// string key in the current module.
@@ -239,7 +283,7 @@ struct XCTwine: ParsableCommand {
             
             }
             
-            public extension String /* Module */ {
+            public extension String {
             
                 /// Gets a localized string value in the current module.
                 var localized: String {
@@ -248,28 +292,55 @@ struct XCTwine: ParsableCommand {
             
             }
             
-            
+
             """
             
         }
         
-        string += "public struct \(self.xcConfig.namespace) /* \(self.inputFile.name) */ {\n\n"
-        string += "    private init() {}\n\n"
+        string += "// MARK: Strings\n\n"
         
-        for entry in entries {
+        if let category = self.xcConfig.category {
             
-            if let comment = entry.comment {
-                string += "    /// \"\(entry.key)\": \(comment)\n"
+            string += "public extension Twine /* \(self.inputFile.name) */ {\n\n"
+            string += "    struct \(category) {\n\n"
+            
+            for entry in entries {
+
+                if let comment = entry.comment {
+                    string += "        /// \"\(entry.key)\" - \(comment)\n"
+                }
+                else {
+                    string += "        /// \"\(entry.key)\"\n"
+                }
+
+                string += "        public static let \(entry.formattedKey): LocalizedStringEntry = .init(key: \"\(entry.key)\")\n\n"
+
             }
-            else {
-                string += "    /// \"\(entry.key)\"\n"
-            }
-  
-            string += "    public static let \(entry.formattedKey): LocalizedStringEntry = .init(key: \"\(entry.key)\")\n\n"
-                      
+
+            string += "    }\n\n"
+            string += "}\n"
+            
         }
-        
-        string += "}\n"
+        else {
+            
+            string += "public extension Twine /* \(self.inputFile.name) */ {\n\n"
+            
+            for entry in entries {
+
+                if let comment = entry.comment {
+                    string += "    /// \"\(entry.key)\" - \(comment)\n"
+                }
+                else {
+                    string += "    /// \"\(entry.key)\"\n"
+                }
+
+                string += "    static let \(entry.formattedKey): LocalizedStringEntry = .init(key: \"\(entry.key)\")\n\n"
+
+            }
+
+            string += "}\n"
+            
+        }
         
         return string
         
