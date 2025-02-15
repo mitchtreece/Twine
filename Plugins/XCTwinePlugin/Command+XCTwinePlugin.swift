@@ -22,11 +22,7 @@ private extension PluginContextProtocol {
 
     func outputPath(for file: File) -> Path {
         
-//        return self.pluginWorkDirectory
-//            .appending("\(file.path.stem)+XCTwine.swift")
-        
-        return file.path
-            .removingLastComponent()
+        return self.pluginWorkDirectory
             .appending("\(file.path.stem)+XCTwine.swift")
         
     }
@@ -58,7 +54,7 @@ extension Command {
         }
         
         return .buildCommand(
-            displayName: "XCTwine: Generate string extensions for \(file.path.lastComponent)",
+            displayName: "XCTwine",
             executable: try ctx.tool(named: "xctwine").path,
             arguments: args,
             inputFiles: [file.path],
